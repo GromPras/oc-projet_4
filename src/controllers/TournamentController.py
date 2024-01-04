@@ -14,14 +14,15 @@ class TournamentController:
         payload = {
             "name": "Echecs et maths",
             "location": "Paris",
-            "starts": "18122023",
-            "ends": "19202023",
+            "starts": "18122024",
+            "ends": "19202024",
             "description": "",
             "round_number": 4,
         }
         new_tournament = TournamentModel(**payload)
-        print(new_tournament)
+        new_tournament.save()
         self.tournament = new_tournament
+        return self.tournament
 
     def load_tournament(self):
         saved_tournaments = {
@@ -34,16 +35,21 @@ class TournamentController:
                 user_choice = saved_tournaments[
                     loading_screen(saved_tournaments)
                 ]
-                print(user_choice)
                 if user_choice == "Quitter":
                     good_bye_screen()
                 tournament = TournamentModel.load_by_name(user_choice)
                 if not tournament:
                     raise KeyError
                 self.tournament = tournament
+                break
             except KeyError:
                 print(
                     "Aucun choix ne correspond, \
 merci de sélectionner une des options du menu"
                 )
                 continue
+        return self.tournament
+
+    def tournament_menu(self, tournament):
+        self.tournament = tournament
+        print(self.tournament)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os
 import json
-from typing import List
+from typing import List, Dict, Any
 
 
 class TournamentModel:
@@ -29,6 +29,19 @@ class TournamentModel:
         self.players = players
         self.current_round = current_round
 
+    def save(self) -> TournamentModel | None:
+        try:
+            with open(
+                f"data/tournaments/{self.starts}_tournoi_{self.name}.json",
+                mode="w",
+                encoding="UTF-8",
+            ) as json_file:
+                json.dump(self.__dict__, json_file)
+            print("Tournoi sauvegardé")
+            return self
+        except OSError:
+            print("[ERREUR]: le fichier n'a pas pu être sauvegardé")
+
     @classmethod
     def get_all(cls) -> List[str]:
         tournaments = os.listdir("data/tournaments")
@@ -36,12 +49,12 @@ class TournamentModel:
         return tournaments
 
     @classmethod
-    def load_by_name(cls, name: str) -> None:
+    def load_by_name(cls, name: str) -> TournamentModel:
         tournament = None
         with open(f"data/tournaments/{name}", "r") as json_file:
             tournament = json.load(json_file)
 
-        print(tournament)
+        return cls(**tournament)
 
     def __repr__(self) -> str:
         return f"{self.name} - {self.location} - Du {self.starts} au \
