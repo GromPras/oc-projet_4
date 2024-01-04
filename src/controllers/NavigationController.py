@@ -2,7 +2,6 @@ from controllers.TournamentController import TournamentController
 from models.TournamentModel import TournamentModel
 from views.main_menu import main_menu
 from views.good_bye_screen import good_bye_screen
-from views.loading_screen import loading_screen
 
 
 class NavigationController:
@@ -17,7 +16,7 @@ class NavigationController:
                     case "1":
                         return self.tournament.create_tournament()
                     case "2":
-                        return loading_screen(data=TournamentModel.get_all())
+                        return self.tournament.load_tournament()
                     case "q":
                         good_bye_screen()
                         break
