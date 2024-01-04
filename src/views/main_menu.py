@@ -3,7 +3,6 @@ def main_menu() -> str:
     options = {
         "1": "Créer un tournoi",
         "2": "Charger un tournoi",
-        "3": "Afficher tous les joueurs",
         "q": "Quitter",
     }
     [print(f"{option}: {options[option]}") for option in options.keys()]

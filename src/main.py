@@ -1,5 +1,5 @@
-from views.main_menu import main_menu
-
+from controllers.NavigationController import NavigationController
 
 if __name__ == "__main__":
-    main_menu()
+    app = NavigationController()
+    app.main_menu()
