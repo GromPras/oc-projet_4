@@ -8,4 +8,4 @@ def main_menu() -> str:
     }
     [print(f"{option}: {options[option]}") for option in options.keys()]
 
-    return input("Que voulez-vous faire?")
+    return input("Que voulez-vous faire? ")
