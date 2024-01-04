@@ -32,3 +32,8 @@ class TournamentModel:
         tournaments = os.listdir("data/tournaments")
         tournaments = sorted(tournaments, reverse=True)
         return tournaments
+
+    def __repr__(self) -> str:
+        return f"{self.name} - {self.location} - Du {self.starts} au \
+{self.ends} - {self.round_number} rounds - \
+{self.description if not None else ''}"

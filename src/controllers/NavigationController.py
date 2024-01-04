@@ -1,20 +1,21 @@
+from controllers.TournamentController import TournamentController
 from models.TournamentModel import TournamentModel
 from views.main_menu import main_menu
 from views.good_bye_screen import good_bye_screen
 from views.loading_screen import loading_screen
-from views.tournament_form import tournament_form
 
 
 class NavigationController:
     """Controller to manage menus"""
 
     def main_menu(self) -> TournamentModel | None:
+        self.tournament = TournamentController()
         while True:
             user_choice = main_menu()
             try:
                 match user_choice:
                     case "1":
-                        return tournament_form()
+                        return self.tournament.create_tournament()
                     case "2":
                         return loading_screen(data=TournamentModel.get_all())
                     case "q":
@@ -25,6 +26,6 @@ class NavigationController:
             except ValueError:
                 print(
                     "Aucun choix ne correspond, \
-                        merci de sélectionner une des options du menu"
+merci de sélectionner une des options du menu"
                 )
                 continue
