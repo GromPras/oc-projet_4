@@ -1,8 +1,8 @@
-from models.TournamentModel import TournamentModel
+from typing import Dict, Any
 from utils import validation
 
 
-def tournament_form() -> TournamentModel:
+def tournament_form() -> Dict[str, Any]:
     """A function that acts as a form to create a new Tournament"""
     new_tournament = {}
     while True:
@@ -64,4 +64,4 @@ def tournament_form() -> TournamentModel:
             print(err)
             continue
 
-    return TournamentModel(**new_tournament)
+    return new_tournament
