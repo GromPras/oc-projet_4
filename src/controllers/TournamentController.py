@@ -1,3 +1,4 @@
+from controllers.PlayerController import PlayerController
 from models.TournamentModel import TournamentModel
 from views.loading_screen import loading_screen
 from views.good_bye_screen import good_bye_screen
@@ -8,10 +9,13 @@ from views.show_tournament_players import show_tournament_players
 
 
 class TournamentController:
+    """Class to handle tournament related actions"""
+
     def __init__(self) -> None:
         self.tournament = None
 
     def create_tournament(self):
+        """Function to create a new tournament"""
         # payload = tournament_form()
         payload = {
             "name": "Echecs et maths",
@@ -27,6 +31,7 @@ class TournamentController:
         self.tournament_menu()
 
     def load_tournament(self):
+        """Function to load a saved tournament"""
         saved_tournaments = {
             str(index): file
             for index, file in enumerate(TournamentModel.get_all(), 1)
@@ -53,56 +58,87 @@ class TournamentController:
         self.tournament_menu()
 
     def tournament_menu(self):
+        """Function to handle tournament menu options"""
         if self.tournament:
-            # Default options
+            required_players = self.tournament.round_number * 2
             options = {
                 "1": "Afficher les joueurs inscris",
                 "2": "Ajouter un joueur",
+                "3": f"Commencer le tournoi \
+({required_players} joueurs requis)",
             }
 
-            # Options available when tournament is ready to start
-            # (minimum_player >= round_number * 2)
-            options_to_start = {
-                "3": "Commencer le tournoi",
-            }
-
-            # Options available when tournament started
-            # (overwrite previous choices)
-            options_to_manage = {
-                "2": "Afficher les tours",
-                "3": "Inscrire les résultats d'un match",
-            }
-
-            if self.tournament.current_round == 0 and len(
-                self.tournament.players
-            ) >= (self.tournament.round_number * 2):
-                options.update(options_to_start)
             if self.tournament.current_round > 0:
-                options.update(options_to_manage)
+                options = load_options_to_manage()
 
-            # Add the option to save and quit
-            options.update(
-                {
-                    "s": "Sauvegarder",
-                    "q": "Quitter",
-                }
-            )
+            options.update(add_options_to_quit())
+
             while True:
                 try:
                     user_choice = tournament_menu_screen(
                         self.tournament, options
                     )
-                    match user_choice:
-                        case "1":
-                            show_tournament_players(self.tournament.players)
-                        case "q":
-                            good_bye_screen(message="Retour au menu principal")
-                            break
-                        case _:
-                            raise KeyError
+                    if self.tournament.current_round == 0:
+                        match user_choice:
+                            case "1":
+                                show_tournament_players(
+                                    self.tournament.players
+                                )
+                            case "2":
+                                contextual_controller = PlayerController()
+                                player_to_add = (
+                                    contextual_controller.add_player_menu()
+                                )
+                                if player_to_add.__dict__ not in [
+                                    player.__dict__
+                                    for player in self.tournament.players
+                                ]:
+                                    self.tournament.players.append(
+                                        player_to_add
+                                    )
+                                    self.tournament.save()
+                                else:
+                                    print("Joueur déjà inscris")
+                            case "3":
+                                if len(self.tournament.players) >= (
+                                    self.tournament.round_number * 2
+                                ):
+                                    # Start tournament
+                                    print("Start")
+                                else:
+                                    # Print error
+                                    print("Cannot start")
+                            case "q":
+                                good_bye_screen(
+                                    message="Retour au menu principal"
+                                )
+                                break
+                            case _:
+                                raise KeyError
+                    if self.tournament.current_round > 0:
+                        pass
                 except KeyError:
                     print(
                         "Aucun choix ne correspond, \
     merci de sélectionner une des options du menu"
                     )
                     continue
+
+
+def add_options_to_quit():
+    """Function to add the save/quit options to a menu"""
+    return {
+        "s": "Sauvegarder",
+        "q": "Quitter",
+    }
+
+
+def load_options_to_manage():
+    # Options available when tournament started
+    # (overwrite previous choices)
+    options = {
+        "1": "Afficher les joueurs inscris",
+        "2": "Afficher les tours",
+        "3": "Inscrire les résultats d'un match",
+    }
+    return options
