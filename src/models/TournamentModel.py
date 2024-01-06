@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 import json
 from typing import List
+from models.PlayerModel import PlayerModel
 
 
 class TournamentModel:
@@ -50,11 +51,15 @@ class TournamentModel:
 
     @classmethod
     def load_by_name(cls, name: str) -> TournamentModel:
-        tournament = None
+        tournament_data = None
         with open(f"data/tournaments/{name}", "r") as json_file:
-            tournament = json.load(json_file)
+            tournament_data = json.load(json_file)
 
-        return cls(**tournament)
+        tournament = cls(**tournament_data)
+        tournament.players = [
+            PlayerModel(**player) for player in tournament.players
+        ]
+        return tournament
 
     def __repr__(self) -> str:
         return f"{self.name} - {self.location} - Du {self.starts} au \

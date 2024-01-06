@@ -1,4 +1,4 @@
-def main_menu() -> str:
+def main_menu_screen() -> str:
     """A function to welcome the user"""
     options = {
         "1": "Créer un tournoi",
