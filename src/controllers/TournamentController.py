@@ -107,7 +107,9 @@ class TournamentController:
                                     print("Start")
                                 else:
                                     # Print error
-                                    print("Cannot start")
+                                    print(
+                                        "Pas assez de joueurs pour commencer"
+                                    )
                             case "q":
                                 good_bye_screen(
                                     message="Retour au menu principal"
@@ -128,7 +130,6 @@ class TournamentController:
 def add_options_to_quit():
     """Function to add the save/quit options to a menu"""
     return {
-        "s": "Sauvegarder",
         "q": "Quitter",
     }
 

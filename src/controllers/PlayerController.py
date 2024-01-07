@@ -1,6 +1,8 @@
 from models.PlayerModel import PlayerModel
 from views.good_bye_screen import good_bye_screen
 from views.add_player_menu_screen import add_player_menu_screen
+from views.show_players_screen import show_players_screen
+from views.player_form import player_form
 
 
 class PlayerController:
@@ -11,13 +13,13 @@ class PlayerController:
 
     def register_player(self):
         """Function to create a new player"""
-        # payload = player_form()
-        payload = {
-            "first_name": "Henry",
-            "last_name": "Moore",
-            "birth_date": "17031987",
-            "national_chess_id": "UV23456",
-        }
+        payload = player_form()
+        # payload = {
+        #     "first_name": "Henry",
+        #     "last_name": "Moore",
+        #     "birth_date": "17031987",
+        #     "national_chess_id": "UV23456",
+        # }
         new_player = PlayerModel(**payload)
         new_player.save()
         self.player = new_player
@@ -42,3 +44,9 @@ class PlayerController:
     merci de sélectionner une des options du menu"
                 )
                 continue
+
+    @classmethod
+    def show_players(cls) -> None:
+        players_list = PlayerModel.get_all()
+        if players_list:
+            show_players_screen(players_list)

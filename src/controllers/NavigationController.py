@@ -1,4 +1,5 @@
 from controllers.TournamentController import TournamentController
+from controllers.PlayerController import PlayerController
 from models.TournamentModel import TournamentModel
 from views.main_menu_screen import main_menu_screen
 from views.good_bye_screen import good_bye_screen
@@ -24,6 +25,8 @@ class NavigationController:
                         self.tournament_data = (
                             self.tournament_controller.load_tournament()
                         )
+                    case "3":
+                        PlayerController.show_players()
                     case "q":
                         good_bye_screen()
                         break

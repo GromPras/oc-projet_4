@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Any
 
@@ -58,3 +59,14 @@ def field_number(value: str) -> int:
             message="Le nombre de rondes doit être un nombre"
         )
     return int(value) if int(value) > 4 else 4
+
+
+@validate_field
+def national_chess_id(value: str) -> str:
+    field_length(value, length=7)
+    if not re.fullmatch(r"[A-Za-z]{2}\d{5}", value):
+        raise FormValidationError(
+            message="Format de l'identifiant national d'échecs invalide \
+                Format valide: AA00000"
+        )
+    return value
