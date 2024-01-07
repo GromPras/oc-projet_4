@@ -55,3 +55,15 @@ class PlayerModel:
                 return players
         except OSError:
             print("[ERREUR]: le fichier joueurs n'a pas pu être chargé")
+
+    @classmethod
+    def load_by_id(cls, id: str) -> PlayerModel | None:
+        national_chess_id = id.split(" ")[0][1:]
+        players = cls.get_all()
+        if players and national_chess_id:
+            data = [
+                player
+                for player in players
+                if player.national_chess_id == national_chess_id
+            ]
+            return data[0] if len(data) > 0 else None

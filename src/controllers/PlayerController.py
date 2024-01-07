@@ -3,6 +3,7 @@ from views.good_bye_screen import good_bye_screen
 from views.add_player_menu_screen import add_player_menu_screen
 from views.show_players_screen import show_players_screen
 from views.player_form import player_form
+from views.loading_screen import loading_screen
 
 
 class PlayerController:
@@ -25,6 +26,30 @@ class PlayerController:
         self.player = new_player
         return new_player
 
+    def load_player(self) -> PlayerModel | None:
+        saved_players = PlayerModel.get_all()
+        if saved_players:
+            player_list = {
+                str(index): repr(player)
+                for index, player in enumerate(saved_players, 1)
+            }
+            player_list["q"] = "Annuler"
+
+            while True:
+                try:
+                    user_choice = player_list[loading_screen(player_list)]
+                    if user_choice == "Annuler":
+                        good_bye_screen()
+                    self.player = PlayerModel.load_by_id(user_choice)
+                    break
+                except KeyError:
+                    print(
+                        "Aucun choix ne correspond, \
+    merci de sélectionner une des options du menu"
+                    )
+                continue
+        return self.player
+
     def add_player_menu(self) -> PlayerModel | None:
         """Handles options to add a player to a tournament"""
         while True:
@@ -34,7 +59,7 @@ class PlayerController:
                     case "1":
                         return self.register_player()
                     case "2":
-                        pass
+                        return self.load_player()
                     case _:
                         good_bye_screen(message="Aucun player n'a été ajouté.")
                         break
