@@ -1,11 +1,11 @@
 from controllers.PlayerController import PlayerController
 from models.TournamentModel import TournamentModel
+from models.PlayerModel import PlayerModel
 from views.loading_screen import loading_screen
 from views.good_bye_screen import good_bye_screen
 from views.tournament_menu_screen import tournament_menu_screen
 from views.show_players_screen import show_players_screen
-
-# from views.tournament_form import tournament_form
+from views.tournament_form import tournament_form
 
 
 class TournamentController:
@@ -16,15 +16,15 @@ class TournamentController:
 
     def create_tournament(self):
         """Function to create a new tournament"""
-        # payload = tournament_form()
-        payload = {
-            "name": "Echecs et maths",
-            "location": "Paris",
-            "starts": "18122024",
-            "ends": "19202024",
-            "description": "",
-            "round_number": 4,
-        }
+        payload = tournament_form()
+        # payload = {
+        #     "name": "Echecs et maths",
+        #     "location": "Paris",
+        #     "starts": "18122024",
+        #     "ends": "19202024",
+        #     "description": "",
+        #     "round_number": 4,
+        # }
         new_tournament = TournamentModel(**payload)
         new_tournament.save()
         self.tournament = new_tournament
@@ -36,14 +36,15 @@ class TournamentController:
             str(index): file
             for index, file in enumerate(TournamentModel.get_all(), 1)
         }
-        saved_tournaments["q"] = "Quitter"
+        saved_tournaments["q"] = "Annuler"
         while True:
             try:
                 user_choice = saved_tournaments[
                     loading_screen(saved_tournaments)
                 ]
-                if user_choice == "Quitter":
-                    good_bye_screen()
+                if user_choice == "Annuler":
+                    good_bye_screen(message="Retour au menu principal")
+                    break
                 tournament = TournamentModel.load_by_name(user_choice)
                 if not tournament:
                     raise KeyError
@@ -81,8 +82,12 @@ class TournamentController:
                     if self.tournament.current_round == 0:
                         match user_choice:
                             case "1":
+                                players = [
+                                    PlayerModel(**player)
+                                    for player in self.tournament.players
+                                ]
                                 show_players_screen(
-                                    self.tournament.players,
+                                    players,
                                     from_tournament=True,
                                 )
                             case "2":
@@ -139,9 +144,14 @@ def load_options_to_manage():
     """Returns the options to manage a tournament"""
     # Options available when tournament started
     # (overwrite previous choices)
+
+    # add option to archive
+    # add option to continue to next round
     options = {
         "1": "Afficher les joueurs inscris",
         "2": "Afficher les tours",
         "3": "Inscrire les résultats d'un match",
+        "4": "Passer au tour suivant (tous les matchs doivent être terminés)",
+        "5": "Archiver tournoi",
     }
     return options

@@ -41,6 +41,7 @@ class PlayerController:
                     user_choice = player_list[loading_screen(player_list)]
                     if user_choice == "Annuler":
                         good_bye_screen()
+                        break
                     self.player = PlayerModel.load_by_id(user_choice)
                     break
                 except KeyError:
@@ -61,6 +62,9 @@ class PlayerController:
                         return self.register_player()
                     case "2":
                         return self.load_player()
+                    case "q":
+                        good_bye_screen("Aucun joueur n'a été ajouté")
+                        break
                     case _:
                         good_bye_screen(message="Aucun player n'a été ajouté.")
                         break
