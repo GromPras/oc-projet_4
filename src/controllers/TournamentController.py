@@ -1,13 +1,13 @@
 from random import shuffle
 from controllers.PlayerController import PlayerController
 from models.TournamentModel import TournamentModel
-from models.PlayerModel import PlayerModel
 from models.RoundModel import RoundModel
 from views.loading_screen import loading_screen
 from views.good_bye_screen import good_bye_screen
 from views.tournament_menu_screen import tournament_menu_screen
 from views.show_players_screen import show_players_screen
 from views.tournament_form import tournament_form
+from views.list_rounds_screen import list_rounds_screen
 
 
 class TournamentController:
@@ -97,10 +97,14 @@ class TournamentController:
                                     player_to_add = (
                                         contextual_controller.add_player_menu()
                                     )
-                                    if player_to_add.__dict__ not in [
-                                        player.__dict__
-                                        for player in self.tournament.players
-                                    ]:
+                                    if (
+                                        player_to_add
+                                        and player_to_add.__dict__
+                                        not in [
+                                            player.__dict__
+                                            for player in self.tournament.players
+                                        ]
+                                    ):
                                         self.tournament.players.append(
                                             player_to_add
                                         )
@@ -143,6 +147,8 @@ class TournamentController:
                         match user_choice:
                             case "1":
                                 self.show_players()
+                            case "2":
+                                self.list_rounds()
                             case "q":
                                 good_bye_screen(
                                     message="Retour au menu principal"
@@ -156,14 +162,8 @@ class TournamentController:
                     continue
 
     def show_players(self) -> None:
-        if isinstance(self.tournament.players[0], PlayerModel):
-            players = self.tournament.players
-        else:
-            players = [
-                PlayerModel(**player) for player in self.tournament.players
-            ]
         show_players_screen(
-            players,
+            self.tournament.players,
             from_tournament=True,
         )
 
@@ -194,7 +194,8 @@ class TournamentController:
         else:
             pass
         new_round = RoundModel(
-            games=games, round_number=self.tournament.current_round
+            games=games,
+            name="Round 1",
         )
         return new_round
 
@@ -204,6 +205,9 @@ class TournamentController:
         self.sort_players_for_game()
         new_round = self.pair_players_for_game()
         self.tournament.rounds_list.append(new_round)
+
+    def list_rounds(self) -> None:
+        list_rounds_screen(self.tournament.rounds_list)
 
 
 def add_options_to_quit():

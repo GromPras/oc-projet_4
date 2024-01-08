@@ -3,6 +3,7 @@ import os
 import json
 from typing import List
 from models.PlayerModel import PlayerModel
+from models.RoundModel import RoundModel
 
 
 class TournamentModel:
@@ -26,8 +27,16 @@ class TournamentModel:
         self.ends = ends
         self.round_number = round_number
         self.description = description
-        self.rounds_list = rounds_list
-        self.players = players
+        self.rounds_list = (
+            [RoundModel(**item) for item in rounds_list]
+            if len(rounds_list) > 0
+            else []
+        )
+        self.players = (
+            [PlayerModel(**player) for player in players]
+            if len(players) > 0
+            else []
+        )
         self.current_round = current_round
 
     def save(self) -> TournamentModel | None:
@@ -66,10 +75,6 @@ class TournamentModel:
             tournament_data = json.load(json_file)
 
         tournament = cls(**tournament_data)
-        if len(tournament.players) > 0:
-            tournament.players = [
-                PlayerModel(**player) for player in tournament.players
-            ]
         return tournament
 
     def __repr__(self) -> str:

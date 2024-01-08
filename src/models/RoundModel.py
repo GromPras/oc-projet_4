@@ -6,12 +6,12 @@ class RoundModel:
     def __init__(
         self,
         games: List[Tuple],
-        round_number: int,
+        name: str,
         started_on: Optional[str] = None,
         ended_on: Optional[str] = None,
     ) -> None:
         self.games = games
-        self.name = f"Round: {round_number}"
+        self.name = name
         self.started_on = started_on if started_on else datetime.now()
         self.ended_on = ended_on
 
