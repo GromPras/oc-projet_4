@@ -1,6 +1,8 @@
+from random import shuffle
 from controllers.PlayerController import PlayerController
 from models.TournamentModel import TournamentModel
 from models.PlayerModel import PlayerModel
+from models.RoundModel import RoundModel
 from views.loading_screen import loading_screen
 from views.good_bye_screen import good_bye_screen
 from views.tournament_menu_screen import tournament_menu_screen
@@ -82,55 +84,126 @@ class TournamentController:
                     if self.tournament.current_round == 0:
                         match user_choice:
                             case "1":
-                                players = [
-                                    PlayerModel(**player)
-                                    for player in self.tournament.players
-                                ]
-                                show_players_screen(
-                                    players,
-                                    from_tournament=True,
-                                )
+                                self.show_players()
                             case "2":
-                                contextual_controller = PlayerController()
-                                player_to_add = (
-                                    contextual_controller.add_player_menu()
-                                )
-                                if player_to_add.__dict__ not in [
-                                    player.__dict__
-                                    for player in self.tournament.players
-                                ]:
-                                    self.tournament.players.append(
-                                        player_to_add
-                                    )
-                                    self.tournament.save()
-                                else:
-                                    print("Joueur déjà inscris")
-                            case "3":
-                                if len(self.tournament.players) >= (
+                                if len(self.tournament.players) == (
                                     self.tournament.round_number * 2
                                 ):
-                                    # Start tournament
-                                    print("Start")
+                                    print(
+                                        "Attention, vous avez atteint la limite de joueurs."
+                                    )
                                 else:
+                                    contextual_controller = PlayerController()
+                                    player_to_add = (
+                                        contextual_controller.add_player_menu()
+                                    )
+                                    if player_to_add.__dict__ not in [
+                                        player.__dict__
+                                        for player in self.tournament.players
+                                    ]:
+                                        self.tournament.players.append(
+                                            player_to_add
+                                        )
+                                        print(self.tournament.players)
+                                        self.tournament.save()
+                                    else:
+                                        print("Joueur déjà inscris")
+                            case "3":
+                                if len(self.tournament.players) == (
+                                    self.tournament.round_number * 2
+                                ):
+                                    [
+                                        player.set_score(0)
+                                        for player in self.tournament.players
+                                    ]
+                                    print("Début du tournoi")
+                                    self.tournament.current_round = 1
+                                    self.prepare_round()
+                                    self.tournament.save()
+                                    self.tournament_menu()
+                                elif len(self.tournament.players) < (
+                                    self.tournament.round_number * 2
+                                ):
                                     # Print error
                                     print(
                                         "Pas assez de joueurs pour commencer"
+                                    )
+                                else:
+                                    print(
+                                        "Le nombre de joueurs maximum est dépassé"
                                     )
                             case "q":
                                 good_bye_screen(
                                     message="Retour au menu principal"
                                 )
-                                break
+                                return None
                             case _:
                                 raise KeyError
                     if self.tournament.current_round > 0:
-                        pass
+                        match user_choice:
+                            case "1":
+                                self.show_players()
+                            case "q":
+                                good_bye_screen(
+                                    message="Retour au menu principal"
+                                )
+                                break
                 except KeyError:
                     print(
                         "Aucun choix ne correspond, \
     merci de sélectionner une des options du menu"
                     )
                     continue
+
+    def show_players(self) -> None:
+        if isinstance(self.tournament.players[0], PlayerModel):
+            players = self.tournament.players
+        else:
+            players = [
+                PlayerModel(**player) for player in self.tournament.players
+            ]
+        show_players_screen(
+            players,
+            from_tournament=True,
+        )
+
+    def sort_players_for_game(self) -> None:
+        if self.tournament.current_round == 1:
+            shuffle(self.tournament.players)
+        else:
+            self.tournament.players = sorted(
+                self.tournament.players, key=lambda k: k.score
+            )
+
+    def pair_players_for_game(self) -> RoundModel:
+        games = []
+        if self.tournament.current_round == 1:
+            for i in range(0, len(self.tournament.players), 2):
+                games.append(
+                    (
+                        [
+                            self.tournament.players[i],
+                            self.tournament.players[i].score,
+                        ],
+                        [
+                            self.tournament.players[i + 1],
+                            self.tournament.players[i + 1].score,
+                        ],
+                    )
+                )
+        else:
+            pass
+        new_round = RoundModel(
+            games=games, round_number=self.tournament.current_round
+        )
+        return new_round
+
+    def prepare_round(self) -> None:
+        if not self.tournament.rounds_list:
+            self.tournament.rounds_list = []
+        self.sort_players_for_game()
+        new_round = self.pair_players_for_game()
+        self.tournament.rounds_list.append(new_round)
 
 
 def add_options_to_quit():

@@ -3,3 +3,6 @@ __pycache__/
 data/
 documents/
 exercices/
+
+# temporary
+src/models/__GameModel.py

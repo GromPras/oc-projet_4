@@ -11,11 +11,13 @@ class PlayerModel:
         last_name: str,
         birth_date: str,
         national_chess_id: str,
+        score: int = 0,
     ) -> None:
         self.first_name = first_name
         self.last_name = last_name
         self.birth_date = birth_date
         self.national_chess_id = national_chess_id
+        self.score = score
 
     def __repr__(self) -> str:
         """Simple representation of a player"""
@@ -41,6 +43,17 @@ class PlayerModel:
             return self
         except OSError:
             print("[ERREUR]: le fichier n'a pas pu être sauvegardé")
+
+    def set_score(self, score: int) -> int:
+        try:
+            int(score)
+            self.score = int(score)
+        except ValueError:
+            print("Le score doit être un nombre")
+            print("Le score n'a pas été modifié")
+            return self.score
+
+        return self.score
 
     @classmethod
     def get_all(cls):

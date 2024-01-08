@@ -36,6 +36,9 @@ class TournamentModel:
         self_dictionnary["players"] = [
             player.__dict__ for player in self.players
         ]
+        self_dictionnary["rounds_list"] = [
+            game_round.to_dict() for game_round in self.rounds_list
+        ]
         try:
             with open(
                 f"data/tournaments/{self.starts}_tournoi_{self.name}.json",
@@ -73,4 +76,4 @@ class TournamentModel:
         """Simple representation of a tournament"""
         return f"{self.name} - {self.location} - Du {self.starts} au \
 {self.ends} - {self.round_number} rounds - \
-{self.description if not None else ''}"
+Tour: {self.current_round}"
