@@ -3,7 +3,7 @@ from models.TournamentModel import TournamentModel
 from views.loading_screen import loading_screen
 from views.good_bye_screen import good_bye_screen
 from views.tournament_menu_screen import tournament_menu_screen
-from views.show_tournament_players import show_tournament_players
+from views.show_players_screen import show_players_screen
 
 # from views.tournament_form import tournament_form
 
@@ -81,8 +81,9 @@ class TournamentController:
                     if self.tournament.current_round == 0:
                         match user_choice:
                             case "1":
-                                show_tournament_players(
-                                    self.tournament.players
+                                show_players_screen(
+                                    self.tournament.players,
+                                    from_tournament=True,
                                 )
                             case "2":
                                 contextual_controller = PlayerController()
@@ -135,6 +136,7 @@ def add_options_to_quit():
 
 
 def load_options_to_manage():
+    """Returns the options to manage a tournament"""
     # Options available when tournament started
     # (overwrite previous choices)
     options = {

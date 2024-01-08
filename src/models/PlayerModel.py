@@ -44,6 +44,7 @@ class PlayerModel:
 
     @classmethod
     def get_all(cls):
+        """Retrieve the players from a json file"""
         players_data = None
         try:
             with open("data/players.json", "r") as json_file:
@@ -58,6 +59,7 @@ class PlayerModel:
 
     @classmethod
     def load_by_id(cls, id: str) -> PlayerModel | None:
+        """Takes the string __repr__ of a player to load a player object"""
         national_chess_id = id.split(" ")[0][1:]
         players = cls.get_all()
         if players and national_chess_id:

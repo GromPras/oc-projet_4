@@ -12,6 +12,7 @@ class NavigationController:
         self.tournament_data = None
 
     def main_menu(self) -> TournamentModel | None:
+        """Displays the main options when starting the program"""
         self.tournament_controller = TournamentController()
         while self.tournament_data is None:
             user_choice = main_menu_screen()

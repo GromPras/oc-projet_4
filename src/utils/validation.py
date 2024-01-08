@@ -4,6 +4,8 @@ from typing import Any
 
 
 class FormValidationError(ValueError):
+    """Custom value error to print a message"""
+
     def __init__(self, message) -> None:
         self.message = message
         super().__init__(message)
@@ -13,6 +15,7 @@ class FormValidationError(ValueError):
 
 
 def validate_field(validation_func) -> Any:
+    """Wrapper function"""
     while True:
         value = None
         try:
@@ -36,6 +39,7 @@ def field_length(value: str, length: int) -> str:
 
 @validate_field
 def field_date(value: str) -> str:
+    """Function to validate a string as a date"""
     sanitized_date = (
         value.replace("_", "")
         .replace("/", "")
@@ -53,6 +57,7 @@ def field_date(value: str) -> str:
 
 @validate_field
 def field_number(value: str) -> int:
+    """Function to validate an input can be a number"""
     field_length(value, length=1)
     if not int(value):
         raise FormValidationError(
@@ -63,6 +68,7 @@ def field_number(value: str) -> int:
 
 @validate_field
 def national_chess_id(value: str) -> str:
+    """Function to validate a string has the desired format: AA00000"""
     field_length(value, length=7)
     if not re.fullmatch(r"[A-Za-z]{2}\d{5}", value):
         raise FormValidationError(

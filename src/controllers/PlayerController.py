@@ -27,6 +27,7 @@ class PlayerController:
         return new_player
 
     def load_player(self) -> PlayerModel | None:
+        """Functions to load a player saved in a json file"""
         saved_players = PlayerModel.get_all()
         if saved_players:
             player_list = {
@@ -72,6 +73,7 @@ class PlayerController:
 
     @classmethod
     def show_players(cls) -> None:
+        """Function to list all the players already registered"""
         players_list = PlayerModel.get_all()
         if players_list:
             show_players_screen(players_list)
