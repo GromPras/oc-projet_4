@@ -2,12 +2,14 @@ from random import shuffle
 from controllers.PlayerController import PlayerController
 from models.TournamentModel import TournamentModel
 from models.RoundModel import RoundModel
+from models.GameModel import GameModel
 from views.loading_screen import loading_screen
 from views.good_bye_screen import good_bye_screen
 from views.tournament_menu_screen import tournament_menu_screen
 from views.show_players_screen import show_players_screen
 from views.tournament_form import tournament_form
 from views.list_rounds_screen import list_rounds_screen
+from views.show_game_screen import show_game_screen
 
 
 class TournamentController:
@@ -19,14 +21,6 @@ class TournamentController:
     def create_tournament(self):
         """Function to create a new tournament"""
         payload = tournament_form()
-        # payload = {
-        #     "name": "Echecs et maths",
-        #     "location": "Paris",
-        #     "starts": "18122024",
-        #     "ends": "19202024",
-        #     "description": "",
-        #     "round_number": 4,
-        # }
         new_tournament = TournamentModel(**payload)
         new_tournament.save()
         self.tournament = new_tournament
@@ -42,7 +36,9 @@ class TournamentController:
         while True:
             try:
                 user_choice = saved_tournaments[
-                    loading_screen(saved_tournaments)
+                    loading_screen(
+                        saved_tournaments, title="Tournois sauvegardés :"
+                    )
                 ]
                 if user_choice == "Annuler":
                     good_bye_screen(message="Retour au menu principal")
@@ -90,7 +86,8 @@ class TournamentController:
                                     self.tournament.round_number * 2
                                 ):
                                     print(
-                                        "Attention, vous avez atteint la limite de joueurs."
+                                        "Attention,\
+vous avez atteint la limite de joueurs."
                                     )
                                 else:
                                     contextual_controller = PlayerController()
@@ -149,6 +146,10 @@ class TournamentController:
                                 self.show_players()
                             case "2":
                                 self.list_rounds()
+                            case "3":
+                                self.write_match_result()
+                            case "4":
+                                self.end_round()
                             case "q":
                                 good_bye_screen(
                                     message="Retour au menu principal"
@@ -162,12 +163,14 @@ class TournamentController:
                     continue
 
     def show_players(self) -> None:
+        """Show a list of the current tournament's players"""
         show_players_screen(
             self.tournament.players,
             from_tournament=True,
         )
 
     def sort_players_for_game(self) -> None:
+        """Function to sort or shuffle the players before a new round"""
         if self.tournament.current_round == 1:
             shuffle(self.tournament.players)
         else:
@@ -176,19 +179,16 @@ class TournamentController:
             )
 
     def pair_players_for_game(self) -> RoundModel:
+        """Creates pairs of players for the round's games"""
         games = []
         if self.tournament.current_round == 1:
             for i in range(0, len(self.tournament.players), 2):
                 games.append(
-                    (
-                        [
-                            self.tournament.players[i],
-                            self.tournament.players[i].score,
-                        ],
-                        [
-                            self.tournament.players[i + 1],
-                            self.tournament.players[i + 1].score,
-                        ],
+                    GameModel(
+                        player_1=self.tournament.players[i],
+                        player_1_score=self.tournament.players[i].score,
+                        player_2=self.tournament.players[i + 1],
+                        player_2_score=self.tournament.players[i + 1].score,
                     )
                 )
         else:
@@ -200,6 +200,7 @@ class TournamentController:
         return new_round
 
     def prepare_round(self) -> None:
+        """Adds a new round with players paired to the current tournament"""
         if not self.tournament.rounds_list:
             self.tournament.rounds_list = []
         self.sort_players_for_game()
@@ -207,7 +208,65 @@ class TournamentController:
         self.tournament.rounds_list.append(new_round)
 
     def list_rounds(self) -> None:
+        """Lists this tournament's rounds and their games"""
         list_rounds_screen(self.tournament.rounds_list)
+
+    def write_match_result(self) -> None:
+        """Function to write the result of a match"""
+        current_round = self.tournament.rounds_list[
+            self.tournament.current_round - 1
+        ]
+        games = {
+            str(index): show_game_screen(game)
+            for index, game in enumerate(current_round.games, 1)
+        }
+        games["q"] = "Annuler"
+        while True:
+            try:
+                user_choice = loading_screen(
+                    games, title="Sélectionnez un match : "
+                )
+                if user_choice == "q":
+                    good_bye_screen(message="Retour au menu du tournoi")
+                    break
+                user_choice = int(user_choice) - 1
+                if not current_round.games[user_choice]:
+                    raise KeyError
+                game = current_round.games[user_choice]
+                results = {
+                    "1": game.player_1.fullname(),
+                    "2": game.player_2.fullname(),
+                    "3": "Egalité",
+                }
+                result = loading_screen(
+                    results, title="Qui à gagné le match ?"
+                )
+                match result:
+                    case "1":
+                        print("Le joueur 1 gagne")
+                        game.set_score(winner="player_1")
+                    case "2":
+                        game.set_score(winner="player_2")
+                    case "3":
+                        print("Egalité")
+                        game.set_score(winner="none")
+                    case _:
+                        break
+                break
+
+            except KeyError:
+                print(
+                    "Aucun choix ne correspond, \
+    merci de sélectionner une des options du menu"
+                )
+                continue
+
+    def end_round(self) -> None:
+        """Ends the current round and prepare the next"""
+        self.tournament.current_round += 1
+        self.prepare_round()
+        self.tournament.save()
+        self.tournament_menu()
 
 
 def add_options_to_quit():

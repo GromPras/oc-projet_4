@@ -21,8 +21,12 @@ class PlayerModel:
 
     def __repr__(self) -> str:
         """Simple representation of a player"""
-        return f"#{self.national_chess_id} -\
+        return f"#{self.national_chess_id} - \
 {self.last_name} {self.first_name} - né(e) le : {self.birth_date}"
+
+    def fullname(self) -> str:
+        """Returns the full name of the player"""
+        return f"{self.first_name} {self.last_name}"
 
     def save(self) -> PlayerModel | None:
         """Saves a player object to a global players json file"""
@@ -44,10 +48,11 @@ class PlayerModel:
         except OSError:
             print("[ERREUR]: le fichier n'a pas pu être sauvegardé")
 
-    def set_score(self, score: int) -> int:
+    def update_score(self, value: float) -> float:
+        """Adds value to the player's score"""
         try:
-            int(score)
-            self.score = int(score)
+            float(value)
+            self.score += float(value)
         except ValueError:
             print("Le score doit être un nombre")
             print("Le score n'a pas été modifié")
