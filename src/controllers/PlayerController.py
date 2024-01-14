@@ -4,6 +4,7 @@ from views.add_player_menu_screen import add_player_menu_screen
 from views.show_players_screen import show_players_screen
 from views.player_form import player_form
 from views.loading_screen import loading_screen
+from views.alert_message import alert_message
 
 
 class PlayerController:
@@ -45,8 +46,8 @@ class PlayerController:
                     self.player = PlayerModel.load_by_id(user_choice)
                     break
                 except KeyError:
-                    print(
-                        "Aucun choix ne correspond, \
+                    error_alert(
+                        message="Aucun choix ne correspond, \
     merci de sélectionner une des options du menu"
                     )
                 continue
@@ -69,9 +70,10 @@ class PlayerController:
                         good_bye_screen(message="Aucun player n'a été ajouté.")
                         break
             except KeyError:
-                print(
-                    "Aucun choix ne correspond, \
-    merci de sélectionner une des options du menu"
+                alert_message(
+                    message="Aucun choix ne correspond, \
+    merci de sélectionner une des options du menu",
+                    type="Error",
                 )
                 continue
 

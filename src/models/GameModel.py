@@ -20,7 +20,7 @@ class GameModel:
 
     def __repr__(self) -> str:
         return f"Joueur 1 : {self.player_1.fullname()} - {self.player_1_score}\
-Joueur 2 : {self.player_2.fullname()} - {self.player_2_score}"
+ Joueur 2 : {self.player_2.fullname()} - {self.player_2_score}"
 
     def as_tuple(self) -> Tuple:
         """Returns an instance of Game as a tuple"""
@@ -42,6 +42,20 @@ Joueur 2 : {self.player_2.fullname()} - {self.player_2_score}"
                 self.player_2.update_score(0.5)
                 self.player_1_score = 0.5
                 self.player_2_score = 0.5
+
+    def get_winner(self) -> str | None:
+        if self.player_1_score == 0 and self.player_2_score == 0:
+            return None
+        elif self.player_1_score and self.player_2_score == 0.5:
+            return "Egalité"
+        return (
+            f"{self.player_1.fullname()}"
+            if self.player_1_score > self.player_2_score
+            else f"{self.player_2.fullname()}"
+        )
+
+    def get_players(self) -> str:
+        return f"{self.player_1.fullname()} contre {self.player_2.fullname()}"
 
     @classmethod
     def loads(cls, game: Tuple) -> GameModel:

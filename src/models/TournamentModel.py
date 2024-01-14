@@ -45,9 +45,10 @@ class TournamentModel:
         self_dictionnary["players"] = [
             player.__dict__ for player in self.players
         ]
-        self_dictionnary["rounds_list"] = [
-            game_round.to_dict() for game_round in self.rounds_list
-        ]
+        if isinstance(self.rounds_list[0], RoundModel):
+            self_dictionnary["rounds_list"] = [
+                game_round.to_dict() for game_round in self.rounds_list
+            ]
         try:
             with open(
                 f"data/tournaments/{self.starts}_tournoi_{self.name}.json",
@@ -59,6 +60,15 @@ class TournamentModel:
             return self
         except OSError:
             print("[ERREUR]: le fichier n'a pas pu être sauvegardé")
+
+    def reload(self) -> TournamentModel:
+        tournament_data = None
+        with open(
+            f"data/tournaments/{self.starts}_tournoi_{self.name}.json", "r"
+        ) as json_file:
+            tournament_data = json.load(json_file)
+        tournament = TournamentModel(**tournament_data)
+        return tournament
 
     @classmethod
     def get_all(cls) -> List[str]:

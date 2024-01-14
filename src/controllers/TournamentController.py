@@ -1,15 +1,17 @@
 from random import shuffle
+from typing import List
 from controllers.PlayerController import PlayerController
 from models.TournamentModel import TournamentModel
 from models.RoundModel import RoundModel
 from models.GameModel import GameModel
+from models.PlayerModel import PlayerModel
 from views.loading_screen import loading_screen
 from views.good_bye_screen import good_bye_screen
 from views.tournament_menu_screen import tournament_menu_screen
 from views.show_players_screen import show_players_screen
 from views.tournament_form import tournament_form
 from views.list_rounds_screen import list_rounds_screen
-from views.show_game_screen import show_game_screen
+from views.alert_message import alert_message
 
 
 class TournamentController:
@@ -18,7 +20,7 @@ class TournamentController:
     def __init__(self) -> None:
         self.tournament = None
 
-    def create_tournament(self):
+    def create_tournament(self) -> None:
         """Function to create a new tournament"""
         payload = tournament_form()
         new_tournament = TournamentModel(**payload)
@@ -26,7 +28,7 @@ class TournamentController:
         self.tournament = new_tournament
         self.tournament_menu()
 
-    def load_tournament(self):
+    def load_tournament(self) -> None:
         """Function to load a saved tournament"""
         saved_tournaments = {
             str(index): file
@@ -35,6 +37,7 @@ class TournamentController:
         saved_tournaments["q"] = "Annuler"
         while True:
             try:
+                # Returns the saved tournament selected by the user
                 user_choice = saved_tournaments[
                     loading_screen(
                         saved_tournaments, title="Tournois sauvegardés :"
@@ -56,7 +59,7 @@ class TournamentController:
                 continue
         self.tournament_menu()
 
-    def tournament_menu(self):
+    def tournament_menu(self) -> None:
         """Function to handle tournament menu options"""
         if self.tournament:
             required_players = self.tournament.round_number * 2
@@ -85,9 +88,10 @@ class TournamentController:
                                 if len(self.tournament.players) == (
                                     self.tournament.round_number * 2
                                 ):
-                                    print(
-                                        "Attention,\
-vous avez atteint la limite de joueurs."
+                                    alert_message(
+                                        message="Attention,\
+vous avez atteint la limite de joueurs.",
+                                        type="Error",
                                     )
                                 else:
                                     contextual_controller = PlayerController()
@@ -105,19 +109,23 @@ vous avez atteint la limite de joueurs."
                                         self.tournament.players.append(
                                             player_to_add
                                         )
-                                        print(self.tournament.players)
                                         self.tournament.save()
                                     else:
-                                        print("Joueur déjà inscris")
+                                        alert_message(
+                                            message="Joueur déjà inscris",
+                                            type="Error",
+                                        )
                             case "3":
                                 if len(self.tournament.players) == (
                                     self.tournament.round_number * 2
                                 ):
-                                    [
-                                        player.set_score(0)
-                                        for player in self.tournament.players
-                                    ]
-                                    print("Début du tournoi")
+                                    # [
+                                    #     player.set_score(0)
+                                    #     for player in self.tournament.players
+                                    # ]
+                                    alert_message(
+                                        message="Début du tournoi", type="Info"
+                                    )
                                     self.tournament.current_round = 1
                                     self.prepare_round()
                                     self.tournament.save()
@@ -125,19 +133,20 @@ vous avez atteint la limite de joueurs."
                                 elif len(self.tournament.players) < (
                                     self.tournament.round_number * 2
                                 ):
-                                    # Print error
-                                    print(
-                                        "Pas assez de joueurs pour commencer"
+                                    alert_message(
+                                        message="Pas assez de joueurs pour commencer",
+                                        type="Error",
                                     )
                                 else:
-                                    print(
-                                        "Le nombre de joueurs maximum est dépassé"
+                                    alert_message(
+                                        message="Le nombre de joueurs maximum est dépassé",
+                                        type="Error",
                                     )
                             case "q":
                                 good_bye_screen(
                                     message="Retour au menu principal"
                                 )
-                                return None
+                                break
                             case _:
                                 raise KeyError
                     if self.tournament.current_round > 0:
@@ -216,8 +225,10 @@ vous avez atteint la limite de joueurs."
         current_round = self.tournament.rounds_list[
             self.tournament.current_round - 1
         ]
+        if not isinstance(current_round, RoundModel):
+            current_round = RoundModel(**current_round)
         games = {
-            str(index): show_game_screen(game)
+            str(index): game.get_players()
             for index, game in enumerate(current_round.games, 1)
         }
         games["q"] = "Annuler"
@@ -241,19 +252,46 @@ vous avez atteint la limite de joueurs."
                 result = loading_screen(
                     results, title="Qui à gagné le match ?"
                 )
+                if not isinstance(self.tournament.players[0], PlayerModel):
+                    self.tournament.players = [
+                        PlayerModel(**player)
+                        for player in self.tournament.players
+                    ]
                 match result:
                     case "1":
                         print("Le joueur 1 gagne")
                         game.set_score(winner="player_1")
+                        [
+                            player.update_score(1)
+                            for player in self.tournament.players
+                            if player.national_chess_id
+                            == game.player_1.national_chess_id
+                        ]
+                        self.tournament.save()
                     case "2":
                         game.set_score(winner="player_2")
+                        [
+                            player.update_score(1)
+                            for player in self.tournament.players
+                            if player.national_chess_id
+                            == game.player_2.national_chess_id
+                        ]
+                        self.tournament.save()
                     case "3":
                         print("Egalité")
                         game.set_score(winner="none")
+                        [
+                            player.update_score(0.5)
+                            for player in self.tournament.players
+                            if player.national_chess_id
+                            == game.player_1.national_chess_id
+                            or game.player_2.national_chess_id
+                        ]
+                        self.tournament.save()
                     case _:
                         break
-                break
-
+                self.tournament = self.tournament.reload()
+                return
             except KeyError:
                 print(
                     "Aucun choix ne correspond, \
@@ -263,10 +301,29 @@ vous avez atteint la limite de joueurs."
 
     def end_round(self) -> None:
         """Ends the current round and prepare the next"""
-        self.tournament.current_round += 1
-        self.prepare_round()
-        self.tournament.save()
-        self.tournament_menu()
+        current_round = self.tournament.rounds_list[
+            self.tournament.current_round - 1
+        ]
+        if [game.get_winner() is None for game in current_round.games]:
+            alert_message(
+                message="Tous les matchs ne sont pas terminés.", type="Error"
+            )
+        else:
+            self.tournament.current_round += 1
+            self.prepare_round()
+            self.tournament.save()
+            self.tournament_menu()
+
+    def update_player_score(
+        self, nci: str, points: float
+    ) -> List[PlayerModel]:
+        for player in self.tournament.players:
+            if not isinstance(player, PlayerModel):
+                player = PlayerModel(**player)
+            if player.national_chess_id == nci:
+                print(player or "None")
+                player.update_score(points)
+        return self.tournament.players
 
 
 def add_options_to_quit():

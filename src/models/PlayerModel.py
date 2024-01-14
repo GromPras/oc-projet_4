@@ -38,6 +38,7 @@ class PlayerModel:
                 return self
         else:
             players = []
+        delattr(self, "score")
         players.append(self)
         try:
             with open("data/players.json", "w", encoding="UTF-8") as json_file:
@@ -48,7 +49,7 @@ class PlayerModel:
         except OSError:
             print("[ERREUR]: le fichier n'a pas pu être sauvegardé")
 
-    def update_score(self, value: float) -> float:
+    def update_score(self, value: float) -> None:
         """Adds value to the player's score"""
         try:
             float(value)
@@ -56,9 +57,6 @@ class PlayerModel:
         except ValueError:
             print("Le score doit être un nombre")
             print("Le score n'a pas été modifié")
-            return self.score
-
-        return self.score
 
     @classmethod
     def get_all(cls):

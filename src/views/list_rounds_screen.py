@@ -6,5 +6,7 @@ from models.RoundModel import RoundModel
 def list_rounds_screen(rounds: List[RoundModel]) -> None:
     """Simple view that list games per round"""
     for item in rounds:
+        if not isinstance(item, RoundModel):
+            item = RoundModel(**item)
         print(f"Matchs du {item.name}")
-        [print(show_game_screen(game)) for game in item.games]
+        [show_game_screen(game) for game in item.games]

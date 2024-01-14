@@ -3,6 +3,7 @@ from controllers.PlayerController import PlayerController
 from models.TournamentModel import TournamentModel
 from views.main_menu_screen import main_menu_screen
 from views.good_bye_screen import good_bye_screen
+from views.alert_message import alert_message
 
 
 class NavigationController:
@@ -34,8 +35,9 @@ class NavigationController:
                     case _:
                         raise ValueError
             except ValueError:
-                print(
-                    "Aucun choix ne correspond, \
-merci de sélectionner une des options du menu"
+                alert_message(
+                    message="Aucun choix ne correspond, \
+merci de sélectionner une des options du menu",
+                    type="Error",
                 )
                 continue
