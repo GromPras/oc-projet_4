@@ -65,3 +65,21 @@ Exécutez la commande suivante :
 ```sh
 python3 src/main.py
 ```
+
+L'application sauvegarde les données des tournois dans des fichiers JSON au format suivant :
+
+```
+/data/tournaments/[tournament_starts]_[tournament_name].json
+```
+
+_si la structure du fichier est correcte, l'application pourra lire un fichier avec un nom différent_
+_cependant elle sauvegardera toujours les fichier selon le même format_
+
+Elle lit/sauvegarde les données des joueurs dans le fichier suivant :
+
+```
+/data/players.json
+```
+
+**Attention** L'application va chercher un fichier nommé _players.json_ et en créer un si elle n'en trouve pas.
+Pour réutiliser une liste de joueurs veuillez renommer votre fichier.

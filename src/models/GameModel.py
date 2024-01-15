@@ -13,9 +13,17 @@ class GameModel:
         player_1_score: float = 0,
         player_2_score: float = 0,
     ) -> None:
-        self.player_1 = PlayerModel(**player_1)
+        self.player_1 = (
+            player_1
+            if isinstance(player_1, PlayerModel)
+            else PlayerModel(**player_1)
+        )
         self.player_1_score = player_1_score
-        self.player_2 = PlayerModel(**player_2)
+        self.player_2 = (
+            player_2
+            if isinstance(player_2, PlayerModel)
+            else PlayerModel(**player_2)
+        )
         self.player_2_score = player_2_score
 
     def __repr__(self) -> str:

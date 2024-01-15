@@ -45,10 +45,11 @@ class TournamentModel:
         self_dictionnary["players"] = [
             player.__dict__ for player in self.players
         ]
-        if isinstance(self.rounds_list[0], RoundModel):
-            self_dictionnary["rounds_list"] = [
-                game_round.to_dict() for game_round in self.rounds_list
-            ]
+        if len(self.rounds_list) > 0:
+            if isinstance(self.rounds_list[0], RoundModel):
+                self_dictionnary["rounds_list"] = [
+                    game_round.to_dict() for game_round in self.rounds_list
+                ]
         try:
             with open(
                 f"data/tournaments/{self.starts}_tournoi_{self.name}.json",

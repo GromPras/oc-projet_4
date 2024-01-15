@@ -52,9 +52,10 @@ class TournamentController:
                 self.tournament = tournament
                 break
             except KeyError:
-                print(
-                    "Aucun choix ne correspond, \
-    merci de sélectionner une des options du menu"
+                alert_message(
+                    message="Aucun choix ne correspond, \
+    merci de sélectionner une des options du menu",
+                    type="Error",
                 )
                 continue
         self.tournament_menu()
@@ -110,6 +111,9 @@ vous avez atteint la limite de joueurs.",
                                             player_to_add
                                         )
                                         self.tournament.save()
+                                        self.tournament = (
+                                            self.tournament.reload()
+                                        )
                                     else:
                                         alert_message(
                                             message="Joueur déjà inscris",
@@ -128,8 +132,7 @@ vous avez atteint la limite de joueurs.",
                                     )
                                     self.tournament.current_round = 1
                                     self.prepare_round()
-                                    self.tournament.save()
-                                    self.tournament_menu()
+
                                 elif len(self.tournament.players) < (
                                     self.tournament.round_number * 2
                                 ):
@@ -165,9 +168,10 @@ vous avez atteint la limite de joueurs.",
                                 )
                                 break
                 except KeyError:
-                    print(
-                        "Aucun choix ne correspond, \
-    merci de sélectionner une des options du menu"
+                    alert_message(
+                        message="Aucun choix ne correspond, \
+    merci de sélectionner une des options du menu",
+                        type="Error",
                     )
                     continue
 
@@ -201,6 +205,7 @@ vous avez atteint la limite de joueurs.",
                     )
                 )
         else:
+            # pair players from score, avoid similar pairs from prev matches
             pass
         new_round = RoundModel(
             games=games,
@@ -215,6 +220,9 @@ vous avez atteint la limite de joueurs.",
         self.sort_players_for_game()
         new_round = self.pair_players_for_game()
         self.tournament.rounds_list.append(new_round)
+        self.tournament.save()
+        self.tournament = self.tournament.reload()
+        self.tournament_menu()
 
     def list_rounds(self) -> None:
         """Lists this tournament's rounds and their games"""
@@ -259,7 +267,7 @@ vous avez atteint la limite de joueurs.",
                     ]
                 match result:
                     case "1":
-                        print("Le joueur 1 gagne")
+                        alert_message(message="Le joueur 1 gagne", type="Info")
                         game.set_score(winner="player_1")
                         [
                             player.update_score(1)
@@ -269,6 +277,7 @@ vous avez atteint la limite de joueurs.",
                         ]
                         self.tournament.save()
                     case "2":
+                        alert_message(message="Le joueur 2 gagne", type="Info")
                         game.set_score(winner="player_2")
                         [
                             player.update_score(1)
@@ -278,7 +287,7 @@ vous avez atteint la limite de joueurs.",
                         ]
                         self.tournament.save()
                     case "3":
-                        print("Egalité")
+                        alert_message(message="Egalité", type="Info")
                         game.set_score(winner="none")
                         [
                             player.update_score(0.5)
@@ -293,9 +302,10 @@ vous avez atteint la limite de joueurs.",
                 self.tournament = self.tournament.reload()
                 return
             except KeyError:
-                print(
-                    "Aucun choix ne correspond, \
-    merci de sélectionner une des options du menu"
+                alert_message(
+                    message="Aucun choix ne correspond, \
+    merci de sélectionner une des options du menu",
+                    type="Error",
                 )
                 continue
 
@@ -317,11 +327,11 @@ vous avez atteint la limite de joueurs.",
     def update_player_score(
         self, nci: str, points: float
     ) -> List[PlayerModel]:
+        """Makes sure the players are PlayerModel and update their scores"""
         for player in self.tournament.players:
             if not isinstance(player, PlayerModel):
                 player = PlayerModel(**player)
             if player.national_chess_id == nci:
-                print(player or "None")
                 player.update_score(points)
         return self.tournament.players
 

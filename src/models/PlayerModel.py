@@ -32,7 +32,6 @@ class PlayerModel:
         """Saves a player object to a global players json file"""
         players = self.get_all()
         if players:
-            print(player.__dict__ for player in players)
             if self.__dict__ in [player.__dict__ for player in players]:
                 print("Joueur déjà enregistré")
                 return self

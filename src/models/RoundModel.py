@@ -13,9 +13,13 @@ class RoundModel:
         started_on: Optional[str] = None,
         ended_on: Optional[str] = None,
     ) -> None:
-        self.games = (
-            [GameModel.loads(game) for game in games] if len(games) > 0 else []
-        )
+        if len(games) > 0:
+            if not isinstance(games[0], GameModel):
+                self.games = [GameModel.loads(game) for game in games]
+            else:
+                self.games = games
+        else:
+            self.games = []
         self.name = name
         self.started_on = started_on if started_on else datetime.now()
         self.ended_on = ended_on

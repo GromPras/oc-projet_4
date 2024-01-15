@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from typing import Any
+from views.alert_message import alert_message
 
 
 class FormValidationError(ValueError):
@@ -22,7 +23,7 @@ def validate_field(validation_func) -> Any:
             value = validation_func
             break
         except ValueError as err:
-            print(err)
+            alert_message(message=str(err), type="Error")
             continue
     return value
 
