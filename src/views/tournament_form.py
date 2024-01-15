@@ -5,63 +5,40 @@ from utils import validation
 def tournament_form() -> Dict[str, Any]:
     """A function that acts as a form to create a new Tournament"""
     new_tournament = {}
-    while True:
-        try:
-            new_tournament["name"] = validation.field_length(
-                value=input("Entrez le nom du tournoi: "), length=2
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
-    while True:
-        try:
-            new_tournament["location"] = validation.field_length(
-                value=input("Entrez le lieu où se déroule le tournoi: "),
-                length=2,
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
 
-    while True:
-        try:
-            new_tournament["starts"] = validation.field_date(
-                value=input("Date de début (format: jjmmaaaa): ")
+    field_requirements = {
+        "name": {
+            "prompt": "Entrez le nom du tournoi : ",
+            "validation_func": lambda v: validation.field_length(v, 2),
+        },
+        "location": {
+            "prompt": "Lieu où se déroulera le tournoi : ",
+            "validation_func": lambda v: validation.field_length(v, 2),
+        },
+        "starts": {
+            "prompt": "Date de début (format : jjmmaaaa) : ",
+            "validation_func": lambda v: validation.field_date,
+        },
+        "ends": {
+            "prompt": "Date de fin (format : jjmmaaaa) : ",
+            "validation_func": lambda v: validation.field_date,
+        },
+        "round_number": {
+            "prompt": "En combien de tous le tournoi se joue? (4 minimum) : ",
+            "validation_func": lambda v: validation.field_number,
+        },
+        "description": {
+            "prompt": "Entrez une description si vous le souhaitez : ",
+            "validation_func": None,
+        },
+    }
+
+    for field, requirements in field_requirements.items():
+        if requirements["validation_func"]:
+            new_tournament[field] = validation.validate_input(
+                requirements["prompt"], requirements["validation_func"]
             )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
-    while True:
-        try:
-            new_tournament["ends"] = validation.field_date(
-                value=input("Date de fin (format: jjmmaaaa): ")
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
-    while True:
-        try:
-            new_tournament["round_number"] = validation.field_number(
-                value=input(
-                    "En combien de rondes le tournoi se joue? (4 minimum): "
-                )
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
-    while True:
-        try:
-            new_tournament["description"] = input(
-                "Entrez une description si vous le souhaitez: "
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
+        else:
+            new_tournament[field] = input(requirements["prompt"])
 
     return new_tournament
