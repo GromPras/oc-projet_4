@@ -8,8 +8,8 @@ class GameModel:
 
     def __init__(
         self,
-        player_1: Dict,
-        player_2: Dict,
+        player_1: Dict | PlayerModel,
+        player_2: Dict | PlayerModel,
         player_1_score: float = 0,
         player_2_score: float = 0,
     ) -> None:

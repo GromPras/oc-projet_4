@@ -16,15 +16,9 @@ class PlayerController:
     def register_player(self):
         """Function to create a new player"""
         payload = player_form()
-        # payload = {
-        #     "first_name": "Henry",
-        #     "last_name": "Moore",
-        #     "birth_date": "17031987",
-        #     "national_chess_id": "UV23456",
-        # }
         new_player = PlayerModel(**payload)
-        new_player.save()
         self.player = new_player
+        new_player.save()
         return new_player
 
     def load_player(self) -> PlayerModel | None:

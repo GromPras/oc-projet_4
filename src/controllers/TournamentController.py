@@ -74,6 +74,9 @@ class TournamentController:
             if self.tournament.current_round > 0:
                 options = load_options_to_manage()
 
+            if self.tournament.current_round > self.tournament.round_number:
+                options = load_options_to_archive()
+
             options.update(add_options_to_quit())
 
             while True:
@@ -123,10 +126,6 @@ vous avez atteint la limite de joueurs.",
                                 if len(self.tournament.players) == (
                                     self.tournament.round_number * 2
                                 ):
-                                    # [
-                                    #     player.set_score(0)
-                                    #     for player in self.tournament.players
-                                    # ]
                                     alert_message(
                                         message="Début du tournoi", type="Info"
                                     )
@@ -153,20 +152,35 @@ vous avez atteint la limite de joueurs.",
                             case _:
                                 raise KeyError
                     if self.tournament.current_round > 0:
-                        match user_choice:
-                            case "1":
-                                self.show_players()
-                            case "2":
-                                self.list_rounds()
-                            case "3":
-                                self.write_match_result()
-                            case "4":
-                                self.end_round()
-                            case "q":
-                                good_bye_screen(
-                                    message="Retour au menu principal"
-                                )
-                                break
+                        if self.tournament.current_round < self.tournament.round_number:
+                            match user_choice:
+                                case "1":
+                                    self.show_players()
+                                case "2":
+                                    self.list_rounds()
+                                case "3":
+                                    self.write_match_result()
+                                case "4":
+                                    self.end_round()
+                                case "q":
+                                    good_bye_screen(
+                                        message="Retour au menu principal"
+                                    )
+                                    break
+                        else:
+                            match user_choice:
+                                case "1":
+                                    self.show_players()
+                                case "2":
+                                    self.list_rounds()
+                                case "3":
+                                    # TODO: add option to archive
+                                    pass
+                                case "q":
+                                    good_bye_screen(
+                                        message="Retour au menu principal"
+                                    )
+                                    break
                 except KeyError:
                     alert_message(
                         message="Aucun choix ne correspond, \
@@ -188,8 +202,22 @@ vous avez atteint la limite de joueurs.",
             shuffle(self.tournament.players)
         else:
             self.tournament.players = sorted(
-                self.tournament.players, key=lambda k: k.score
+                self.tournament.players, key=lambda k: k.score,
+                reverse=True
             )
+
+    def find_new_opponent(
+        self,
+        player_1: PlayerModel,
+        previous_games: List[List[str]],
+        possible_opponents: List[PlayerModel],
+    ) -> PlayerModel | None:
+        new_opponent = None
+        for opponent in possible_opponents:
+            if (player_1.national_chess_id, opponent.national_chess_id) not in previous_games:
+                new_opponent = opponent
+                return new_opponent
+        return new_opponent
 
     def pair_players_for_game(self) -> RoundModel:
         """Creates pairs of players for the round's games"""
@@ -206,10 +234,39 @@ vous avez atteint la limite de joueurs.",
                 )
         else:
             # pair players from score, avoid similar pairs from prev matches
-            pass
+            for i in range(self.tournament.round_number):
+                already_paired = []
+                for game in games:
+                    already_paired.append(game.player_1.national_chess_id)
+                    already_paired.append(game.player_2.national_chess_id)
+
+                previous_pairs = []
+                for round_item in self.tournament.rounds_list:
+                    [previous_pairs.append(
+                        [game.player_1.national_chess_id, game.player_2.national_chess_id]) for game in round_item.games]
+                players = filter(
+                    lambda k: k.national_chess_id not in already_paired, self.tournament.players)
+
+                for player in players:
+                    opponents = filter(
+                        lambda k: player.national_chess_id != k.national_chess_id, players)
+
+                    player_2 = self.find_new_opponent(
+                        player_1=player,
+                        previous_games=previous_pairs,
+                        possible_opponents=list(opponents),
+                    )
+                    games.append(
+                        GameModel(
+                            player_1=player,
+                            player_1_score=0,
+                            player_2=player_2,
+                            player_2_score=0,
+                        )
+                    )
         new_round = RoundModel(
             games=games,
-            name="Round 1",
+            name=f"Round {self.tournament.current_round}",
         )
         return new_round
 
@@ -289,13 +346,12 @@ vous avez atteint la limite de joueurs.",
                     case "3":
                         alert_message(message="Egalité", type="Info")
                         game.set_score(winner="none")
-                        [
-                            player.update_score(0.5)
-                            for player in self.tournament.players
-                            if player.national_chess_id
-                            == game.player_1.national_chess_id
-                            or game.player_2.national_chess_id
-                        ]
+                        players_id = []
+                        players_id.append(game.player_1.national_chess_id)
+                        players_id.append(game.player_2.national_chess_id)
+                        for player in self.tournament.players:
+                            if player.national_chess_id in players_id:
+                                player.update_score(0.5)
                         self.tournament.save()
                     case _:
                         break
@@ -314,14 +370,19 @@ vous avez atteint la limite de joueurs.",
         current_round = self.tournament.rounds_list[
             self.tournament.current_round - 1
         ]
-        if [game.get_winner() is None for game in current_round.games]:
+        if not [game.get_winner() is None for game in current_round.games]:
             alert_message(
                 message="Tous les matchs ne sont pas terminés.", type="Error"
             )
         else:
+            self.tournament.rounds_list[self.tournament.current_round -
+                                        1] = current_round.set_round_end()
             self.tournament.current_round += 1
-            self.prepare_round()
-            self.tournament.save()
+            if self.tournament.current_round < self.tournament.round_number:
+                self.prepare_round()
+                self.tournament.save()
+            else:
+                alert_message(message="Tournoi terminé")
             self.tournament_menu()
 
     def update_player_score(
@@ -356,5 +417,20 @@ def load_options_to_manage():
         "3": "Inscrire les résultats d'un match",
         "4": "Passer au tour suivant (tous les matchs doivent être terminés)",
         "5": "Archiver tournoi",
+    }
+    return options
+
+
+def load_options_to_archive():
+    """Returns the options to manage a tournament"""
+    # Options available when tournament started
+    # (overwrite previous choices)
+
+    # add option to archive
+    # add option to continue to next round
+    options = {
+        "1": "Afficher les joueurs inscris",
+        "2": "Afficher les tours",
+        "3": "Archiver tournoi",
     }
     return options

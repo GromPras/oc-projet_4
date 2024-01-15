@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List, Optional
 from datetime import datetime
 from models.GameModel import GameModel
@@ -32,3 +33,7 @@ class RoundModel:
             "started_on": str(self.started_on),
             "ended_on": str(self.ended_on),
         }
+
+    def set_round_end(self) -> RoundModel:
+        self.ended_on = datetime.now()
+        return self
