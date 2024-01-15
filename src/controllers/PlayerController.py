@@ -46,9 +46,10 @@ class PlayerController:
                     self.player = PlayerModel.load_by_id(user_choice)
                     break
                 except KeyError:
-                    error_alert(
+                    alert_message(
                         message="Aucun choix ne correspond, \
-    merci de sélectionner une des options du menu"
+    merci de sélectionner une des options du menu",
+                        type="Error",
                     )
                 continue
         return self.player

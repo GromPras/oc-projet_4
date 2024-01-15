@@ -5,46 +5,29 @@ from utils import validation
 def player_form() -> Dict[str, Any]:
     """A function that acts as a form to create a player"""
     new_player = {}
-    while True:
-        try:
-            new_player["first_name"] = validation.field_length(
-                value=input("Prénom: "), length=2
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
 
-    while True:
-        try:
-            new_player["last_name"] = validation.field_length(
-                value=input("Nom: "), length=2
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
+    fields_requirements = {
+        "first_name": {
+            "prompt": "Prénom : ",
+            "validation_func": lambda v: validation.field_length(v, 2),
+        },
+        "last_name": {
+            "prompt": "Nom : ",
+            "validation_func": lambda v: validation.field_length(v, 2),
+        },
+        "birth_date": {
+            "prompt": "Date de naissance (format: jjmmaaaa) : ",
+            "validation_func": validation.field_date,
+        },
+        "national_chess_id": {
+            "prompt": "Identifiant national d'échecs (format: AA00000A) : ",
+            "validation_func": validation.national_chess_id,
+        },
+    }
 
-    while True:
-        try:
-            new_player["birth_date"] = validation.field_date(
-                value=input("Date de naissance (format: jjmmaaaa): ")
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
-
-    while True:
-        try:
-            new_player["national_chess_id"] = validation.national_chess_id(
-                value=input(
-                    "Identifiant national d'échecs (format: AA00000): "
-                ),
-            )
-            break
-        except validation.FormValidationError as err:
-            print(err)
-            continue
+    for field, requirements in fields_requirements.items():
+        new_player[field] = validation.validate_input(
+            requirements["prompt"], requirements["validation_func"]
+        )
 
     return new_player

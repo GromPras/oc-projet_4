@@ -15,20 +15,16 @@ class FormValidationError(ValueError):
         return self.message
 
 
-def validate_field(validation_func) -> Any:
-    """Wrapper function"""
+def validate_input(prompt: str, validation_func: Any) -> Any:
+    """Wrapper function to validate inputs"""
     while True:
-        value = None
         try:
-            value = validation_func
-            break
+            value = input(prompt)
+            return validation_func(value)
         except ValueError as err:
             alert_message(message=str(err), type="Error")
-            continue
-    return value
 
 
-@validate_field
 def field_length(value: str, length: int) -> str:
     """Function to test the length of a field"""
     if value == "" or len(value) < length:
@@ -38,7 +34,6 @@ def field_length(value: str, length: int) -> str:
     return value
 
 
-@validate_field
 def field_date(value: str) -> str:
     """Function to validate a string as a date"""
     sanitized_date = (
@@ -56,7 +51,6 @@ def field_date(value: str) -> str:
     return sanitized_date
 
 
-@validate_field
 def field_number(value: str) -> int:
     """Function to validate an input can be a number"""
     field_length(value, length=1)
@@ -67,7 +61,6 @@ def field_number(value: str) -> int:
     return int(value) if int(value) > 4 else 4
 
 
-@validate_field
 def national_chess_id(value: str) -> str:
     """Function to validate a string has the desired format: AA00000"""
     field_length(value, length=7)
