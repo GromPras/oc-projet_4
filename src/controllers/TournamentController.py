@@ -115,7 +115,7 @@ vous avez atteint la limite de joueurs.",
                                         )
                                         self.tournament.save()
                                         self.tournament = (
-                                            self.tournament.reload()
+                                            self.tournament.reload_data()
                                         )
                                     else:
                                         alert_message(
@@ -174,8 +174,11 @@ vous avez atteint la limite de joueurs.",
                                 case "2":
                                     self.list_rounds()
                                 case "3":
-                                    # TODO: add option to archive
-                                    pass
+                                    self.tournament.archive()
+                                    self.tournament = None
+                                    good_bye_screen(
+                                        message="Tournoi archivé. Retour au menu principal")
+                                    break
                                 case "q":
                                     good_bye_screen(
                                         message="Retour au menu principal"
@@ -212,6 +215,7 @@ vous avez atteint la limite de joueurs.",
         previous_games: List[List[str]],
         possible_opponents: List[PlayerModel],
     ) -> PlayerModel | None:
+        """Function to check if two players already faced each other"""
         new_opponent = None
         for opponent in possible_opponents:
             if (player_1.national_chess_id, opponent.national_chess_id) not in previous_games:
@@ -278,7 +282,7 @@ vous avez atteint la limite de joueurs.",
         new_round = self.pair_players_for_game()
         self.tournament.rounds_list.append(new_round)
         self.tournament.save()
-        self.tournament = self.tournament.reload()
+        self.tournament = self.tournament.reload_data()
         self.tournament_menu()
 
     def list_rounds(self) -> None:
@@ -355,7 +359,7 @@ vous avez atteint la limite de joueurs.",
                         self.tournament.save()
                     case _:
                         break
-                self.tournament = self.tournament.reload()
+                self.tournament = self.tournament.reload_data()
                 return
             except KeyError:
                 alert_message(

@@ -4,6 +4,7 @@ import json
 from typing import List
 from models.PlayerModel import PlayerModel
 from models.RoundModel import RoundModel
+from utils.errors import OperationError
 
 
 class TournamentModel:
@@ -39,7 +40,7 @@ class TournamentModel:
         )
         self.current_round = current_round
 
-    def save(self) -> TournamentModel | None:
+    def save(self, archive=False) -> TournamentModel | None:
         """Saves a tournament object to a json file"""
         self_dictionnary = self.__dict__
         self_dictionnary["players"] = [
@@ -52,7 +53,7 @@ class TournamentModel:
                 ]
         try:
             with open(
-                f"data/tournaments/{self.starts}_tournoi_{self.name}.json",
+                f"data/tournaments/{'ARCHIVE_' if archive else ''}{self.starts}_tournoi_{self.name}.json",
                 mode="w",
                 encoding="UTF-8",
             ) as json_file:
@@ -62,7 +63,7 @@ class TournamentModel:
         except OSError:
             print("[ERREUR]: le fichier n'a pas pu être sauvegardé")
 
-    def reload(self) -> TournamentModel:
+    def reload_data(self) -> TournamentModel:
         tournament_data = None
         with open(
             f"data/tournaments/{self.starts}_tournoi_{self.name}.json", "r"
@@ -70,6 +71,16 @@ class TournamentModel:
             tournament_data = json.load(json_file)
         tournament = TournamentModel(**tournament_data)
         return tournament
+
+    def archive(self) -> TournamentModel | None:
+        """Function to mark the current tournament as archived"""
+        if self.save(archive=True) is not None:
+            try:
+                os.remove(
+                    f"data/tournaments/{self.starts}_tournoi_{self.name}.json")
+            except OSError:
+                raise OperationError(
+                    message="Le tournoi n'a pas pu être supprimé")
 
     @classmethod
     def get_all(cls) -> List[str]:
