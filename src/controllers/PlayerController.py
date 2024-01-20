@@ -35,6 +35,8 @@ class PlayerController:
             if user_choice:
                 self.player = PlayerModel.load_by_id(user_choice)
                 return self.player
+            else:
+                return
 
     def add_player_menu(self) -> PlayerModel | None:
         """Handles options to add a player to a tournament"""

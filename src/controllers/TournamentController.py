@@ -1,6 +1,7 @@
 from random import shuffle
 from typing import List
 from controllers.PlayerController import PlayerController
+from controllers.RoundController import RoundController
 from models.TournamentModel import TournamentModel
 from models.RoundModel import RoundModel
 from models.GameModel import GameModel
@@ -139,6 +140,7 @@ vous avez atteint la limite de joueurs.",
                             case _:
                                 raise KeyError
                     if self.tournament.current_round > 0:
+                        # Check if the last round has been played
                         if self.tournament.current_round < self.tournament.round_number:
                             match user_choice:
                                 case "1":
@@ -146,7 +148,10 @@ vous avez atteint la limite de joueurs.",
                                 case "2":
                                     self.list_rounds()
                                 case "3":
-                                    self.write_match_result()
+                                    round_controller = RoundController()
+                                    tournament = round_controller.write_match_result(
+                                        tournament=self.tournament)
+                                    self.tournament = tournament.reload_data()
                                 case "4":
                                     self.end_round()
                                 case "q":
@@ -275,86 +280,6 @@ vous avez atteint la limite de joueurs.",
     def list_rounds(self) -> None:
         """Lists this tournament's rounds and their games"""
         list_rounds_screen(self.tournament.rounds_list)
-
-    def write_match_result(self) -> None:
-        """Function to write the result of a match"""
-        current_round = self.tournament.rounds_list[
-            self.tournament.current_round - 1
-        ]
-        if not isinstance(current_round, RoundModel):
-            current_round = RoundModel(**current_round)
-        games = {
-            str(index): game.get_players()
-            for index, game in enumerate(current_round.games, 1)
-        }
-        games["q"] = "Annuler"
-        while True:
-            try:
-                user_choice = loading_screen(
-                    games, title="Sélectionnez un match : "
-                )
-                if user_choice == "q":
-                    good_bye_screen(message="Retour au menu du tournoi")
-                    break
-                user_choice = int(user_choice) - 1
-                if not current_round.games[user_choice]:
-                    raise KeyError
-                game = current_round.games[user_choice]
-                results = {
-                    "1": game.player_1.fullname(),
-                    "2": game.player_2.fullname(),
-                    "3": "Egalité",
-                }
-                result = loading_screen(
-                    results, title="Qui à gagné le match ?"
-                )
-                if not isinstance(self.tournament.players[0], PlayerModel):
-                    self.tournament.players = [
-                        PlayerModel(**player)
-                        for player in self.tournament.players
-                    ]
-                match result:
-                    case "1":
-                        alert_message(message="Le joueur 1 gagne", type="Info")
-                        game.set_score(winner="player_1")
-                        [
-                            player.update_score(1)
-                            for player in self.tournament.players
-                            if player.national_chess_id
-                            == game.player_1.national_chess_id
-                        ]
-                        self.tournament.save()
-                    case "2":
-                        alert_message(message="Le joueur 2 gagne", type="Info")
-                        game.set_score(winner="player_2")
-                        [
-                            player.update_score(1)
-                            for player in self.tournament.players
-                            if player.national_chess_id
-                            == game.player_2.national_chess_id
-                        ]
-                        self.tournament.save()
-                    case "3":
-                        alert_message(message="Egalité", type="Info")
-                        game.set_score(winner="none")
-                        players_id = []
-                        players_id.append(game.player_1.national_chess_id)
-                        players_id.append(game.player_2.national_chess_id)
-                        for player in self.tournament.players:
-                            if player.national_chess_id in players_id:
-                                player.update_score(0.5)
-                        self.tournament.save()
-                    case _:
-                        break
-                self.tournament = self.tournament.reload_data()
-                return
-            except KeyError:
-                alert_message(
-                    message="Aucun choix ne correspond, \
-    merci de sélectionner une des options du menu",
-                    type="Error",
-                )
-                continue
 
     def end_round(self) -> None:
         """Ends the current round and prepare the next"""
