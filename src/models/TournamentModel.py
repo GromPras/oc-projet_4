@@ -52,8 +52,9 @@ class TournamentModel:
                     game_round.to_dict() for game_round in self.rounds_list
                 ]
         try:
+            path = "data/archived/" if archive else "data/tournaments/"
             with open(
-                f"data/tournaments/{'ARCHIVE_' if archive else ''}{self.starts}_tournoi_{self.name}.json",
+                f"{path}{self.starts}_tournoi_{self.name}.json",
                 mode="w",
                 encoding="UTF-8",
             ) as json_file:

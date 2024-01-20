@@ -30,23 +30,11 @@ class PlayerController:
                 for index, player in enumerate(saved_players, 1)
             }
             player_list["q"] = "Annuler"
-
-            while True:
-                try:
-                    user_choice = player_list[loading_screen(player_list)]
-                    if user_choice == "Annuler":
-                        good_bye_screen()
-                        break
-                    self.player = PlayerModel.load_by_id(user_choice)
-                    break
-                except KeyError:
-                    alert_message(
-                        message="Aucun choix ne correspond, \
-    merci de sélectionner une des options du menu",
-                        type="Error",
-                    )
-                continue
-        return self.player
+            user_choice = loading_screen(
+                player_list, title="Joueurs enregistrés :")
+            if user_choice:
+                self.player = PlayerModel.load_by_id(user_choice)
+                return self.player
 
     def add_player_menu(self) -> PlayerModel | None:
         """Handles options to add a player to a tournament"""

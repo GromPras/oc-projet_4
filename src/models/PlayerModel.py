@@ -68,7 +68,7 @@ class PlayerModel:
             if players_data:
                 players = [cls(**player) for player in players_data]
 
-                return players
+                return sorted(players, key=lambda p: p.fullname())
         except OSError:
             print("[ERREUR]: le fichier joueurs n'a pas pu être chargé")
 

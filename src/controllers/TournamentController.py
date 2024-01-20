@@ -35,29 +35,16 @@ class TournamentController:
             for index, file in enumerate(TournamentModel.get_all(), 1)
         }
         saved_tournaments["q"] = "Annuler"
-        while True:
-            try:
-                # Returns the saved tournament selected by the user
-                user_choice = saved_tournaments[
-                    loading_screen(
-                        saved_tournaments, title="Tournois sauvegardés :"
-                    )
-                ]
-                if user_choice == "Annuler":
-                    good_bye_screen(message="Retour au menu principal")
-                    break
-                tournament = TournamentModel.load_by_name(user_choice)
-                if not tournament:
-                    raise KeyError
-                self.tournament = tournament
-                break
-            except KeyError:
-                alert_message(
-                    message="Aucun choix ne correspond, \
-    merci de sélectionner une des options du menu",
-                    type="Error",
-                )
-                continue
+        user_choice = loading_screen(
+            saved_tournaments, title="Tournois sauvegardés :"
+        )
+        if user_choice:
+            tournament = TournamentModel.load_by_name(user_choice)
+            if not tournament:
+                raise KeyError
+        else:
+            return
+        self.tournament = tournament
         self.tournament_menu()
 
     def tournament_menu(self) -> None:
