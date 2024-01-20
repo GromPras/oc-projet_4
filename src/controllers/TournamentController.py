@@ -20,6 +20,7 @@ class TournamentController:
 
     def __init__(self) -> None:
         self.tournament = None
+        self.round_controller = RoundController()
 
     def create_tournament(self) -> None:
         """Function to create a new tournament"""
@@ -118,7 +119,15 @@ vous avez atteint la limite de joueurs.",
                                         message="Début du tournoi", type="Info"
                                     )
                                     self.tournament.current_round = 1
-                                    self.prepare_round()
+                                    if not self.tournament.rounds_list:
+                                        self.tournament.rounds_list = []
+                                    self.tournament.rounds_list.append(
+                                        self.round_controller.new_round(
+                                            self.tournament
+                                        )
+                                    )
+                                    self.tournament.save()
+                                    self.tournament_menu()
 
                                 elif len(self.tournament.players) < (
                                     self.tournament.round_number * 2
@@ -148,12 +157,15 @@ vous avez atteint la limite de joueurs.",
                                 case "2":
                                     self.list_rounds()
                                 case "3":
-                                    round_controller = RoundController()
-                                    tournament = round_controller.write_match_result(
-                                        tournament=self.tournament)
+                                    tournament = self.round_controller.write_match_result(
+                                        tournament=self.tournament
+                                    )
                                     self.tournament = tournament.reload_data()
                                 case "4":
-                                    self.end_round()
+                                    tournament = self.round_controller.end_round(
+                                        tournament=self.tournament
+                                    )
+                                    self.tournament = tournament.reload_data()
                                 case "q":
                                     good_bye_screen(
                                         message="Retour au menu principal"
@@ -191,115 +203,9 @@ vous avez atteint la limite de joueurs.",
             from_tournament=True,
         )
 
-    def sort_players_for_game(self) -> None:
-        """Function to sort or shuffle the players before a new round"""
-        if self.tournament.current_round == 1:
-            shuffle(self.tournament.players)
-        else:
-            self.tournament.players = sorted(
-                self.tournament.players, key=lambda k: k.score,
-                reverse=True
-            )
-
-    def find_new_opponent(
-        self,
-        player_1: PlayerModel,
-        previous_games: List[List[str]],
-        possible_opponents: List[PlayerModel],
-    ) -> PlayerModel | None:
-        """Function to check if two players already faced each other"""
-        new_opponent = None
-        for opponent in possible_opponents:
-            if (player_1.national_chess_id, opponent.national_chess_id) not in previous_games:
-                new_opponent = opponent
-                return new_opponent
-        return new_opponent
-
-    def pair_players_for_game(self) -> RoundModel:
-        """Creates pairs of players for the round's games"""
-        games = []
-        if self.tournament.current_round == 1:
-            for i in range(0, len(self.tournament.players), 2):
-                games.append(
-                    GameModel(
-                        player_1=self.tournament.players[i],
-                        player_1_score=self.tournament.players[i].score,
-                        player_2=self.tournament.players[i + 1],
-                        player_2_score=self.tournament.players[i + 1].score,
-                    )
-                )
-        else:
-            # pair players from score, avoid similar pairs from prev matches
-            for i in range(self.tournament.round_number):
-                already_paired = []
-                for game in games:
-                    already_paired.append(game.player_1.national_chess_id)
-                    already_paired.append(game.player_2.national_chess_id)
-
-                previous_pairs = []
-                for round_item in self.tournament.rounds_list:
-                    [previous_pairs.append(
-                        [game.player_1.national_chess_id, game.player_2.national_chess_id]) for game in round_item.games]
-                players = filter(
-                    lambda k: k.national_chess_id not in already_paired, self.tournament.players)
-
-                for player in players:
-                    opponents = filter(
-                        lambda k: player.national_chess_id != k.national_chess_id, players)
-
-                    player_2 = self.find_new_opponent(
-                        player_1=player,
-                        previous_games=previous_pairs,
-                        possible_opponents=list(opponents),
-                    )
-                    games.append(
-                        GameModel(
-                            player_1=player,
-                            player_1_score=0,
-                            player_2=player_2,
-                            player_2_score=0,
-                        )
-                    )
-        new_round = RoundModel(
-            games=games,
-            name=f"Round {self.tournament.current_round}",
-        )
-        return new_round
-
-    def prepare_round(self) -> None:
-        """Adds a new round with players paired to the current tournament"""
-        if not self.tournament.rounds_list:
-            self.tournament.rounds_list = []
-        self.sort_players_for_game()
-        new_round = self.pair_players_for_game()
-        self.tournament.rounds_list.append(new_round)
-        self.tournament.save()
-        self.tournament = self.tournament.reload_data()
-        self.tournament_menu()
-
     def list_rounds(self) -> None:
         """Lists this tournament's rounds and their games"""
         list_rounds_screen(self.tournament.rounds_list)
-
-    def end_round(self) -> None:
-        """Ends the current round and prepare the next"""
-        current_round = self.tournament.rounds_list[
-            self.tournament.current_round - 1
-        ]
-        if not [game.get_winner() is None for game in current_round.games]:
-            alert_message(
-                message="Tous les matchs ne sont pas terminés.", type="Error"
-            )
-        else:
-            self.tournament.rounds_list[self.tournament.current_round -
-                                        1] = current_round.set_round_end()
-            self.tournament.current_round += 1
-            if self.tournament.current_round < self.tournament.round_number:
-                self.prepare_round()
-                self.tournament.save()
-            else:
-                alert_message(message="Tournoi terminé")
-            self.tournament_menu()
 
     def update_player_score(
         self, nci: str, points: float
