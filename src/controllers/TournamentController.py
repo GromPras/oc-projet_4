@@ -1,10 +1,7 @@
-from random import shuffle
 from typing import List
 from controllers.PlayerController import PlayerController
 from controllers.RoundController import RoundController
 from models.TournamentModel import TournamentModel
-from models.RoundModel import RoundModel
-from models.GameModel import GameModel
 from models.PlayerModel import PlayerModel
 from views.loading_screen import loading_screen
 from views.good_bye_screen import good_bye_screen
@@ -20,7 +17,6 @@ class TournamentController:
 
     def __init__(self) -> None:
         self.tournament = None
-        self.round_controller = RoundController()
 
     def create_tournament(self) -> None:
         """Function to create a new tournament"""
@@ -122,9 +118,8 @@ vous avez atteint la limite de joueurs.",
                                     if not self.tournament.rounds_list:
                                         self.tournament.rounds_list = []
                                     self.tournament.rounds_list.append(
-                                        self.round_controller.new_round(
-                                            self.tournament
-                                        )
+                                        RoundController(
+                                            tournament=self.tournament).new_round()
                                     )
                                     self.tournament.save()
                                     self.tournament_menu()
@@ -157,14 +152,13 @@ vous avez atteint la limite de joueurs.",
                                 case "2":
                                     self.list_rounds()
                                 case "3":
-                                    tournament = self.round_controller.write_match_result(
-                                        tournament=self.tournament
-                                    )
-                                    self.tournament = tournament.reload_data()
+                                    self.tournament = RoundController(
+                                        tournament=self.tournament).write_match_result()
+                                    self.tournament.save()
+                                    self.tournament = self.tournament.reload_data()
                                 case "4":
-                                    tournament = self.round_controller.end_round(
-                                        tournament=self.tournament
-                                    )
+                                    tournament = RoundController(
+                                        tournament=self.tournament).end_round()
                                     self.tournament = tournament.reload_data()
                                 case "q":
                                     good_bye_screen(
@@ -199,7 +193,7 @@ vous avez atteint la limite de joueurs.",
     def show_players(self) -> None:
         """Show a list of the current tournament's players"""
         show_players_screen(
-            self.tournament.players,
+            self.tournament.get_players(),
             from_tournament=True,
         )
 

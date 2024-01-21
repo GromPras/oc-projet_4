@@ -9,16 +9,20 @@ from views.loading_screen import loading_screen
 
 
 class RoundController:
-    def write_match_result(
-        self, tournament: TournamentModel
-    ) -> TournamentModel:
+    def __init__(self, tournament: TournamentModel) -> None:
+        self.tournament = tournament
+        if self.tournament.current_round > 0:
+            self.current_round = tournament.rounds_list[
+                tournament.current_round - 1
+            ]
+
+    def write_match_result(self) -> TournamentModel:
         """Function to write the result of a match"""
-        current_round = tournament.rounds_list[tournament.current_round - 1]
-        if not isinstance(current_round, RoundModel):
-            current_round = RoundModel(**current_round)
+        if not isinstance(self.current_round, RoundModel):
+            self.current_round = RoundModel(**self.current_round)
         games = {
             str(index): game.get_players()
-            for index, game in enumerate(current_round.games, 1)
+            for index, game in enumerate(self.current_round.games, 1)
         }
         games["q"] = "Annuler"
         user_choice = loading_screen(
@@ -26,10 +30,9 @@ class RoundController:
         )
         if user_choice:
             game_index = int(user_choice) - 1
-            if not current_round.games[game_index]:
+            if not self.current_round.games[game_index]:
                 raise KeyError
-            game = current_round.games[game_index]
-            print(game)
+            game = self.current_round.games[game_index]
             results = {
                 "1": game.player_1.fullname(),
                 "2": game.player_2.fullname(),
@@ -38,80 +41,70 @@ class RoundController:
             result = loading_screen(
                 results, title="Qui à gagné le match ?", return_raw_input=True
             )
-            if not isinstance(tournament.players[0], PlayerModel):
-                tournament.players = [
-                    PlayerModel(**player) for player in tournament.players
+            if not isinstance(self.tournament.players[0], PlayerModel):
+                self.tournament.players = [
+                    PlayerModel(**player) for player in self.tournament.players
                 ]
             match result:
                 case "1":
                     alert_message(message="Le joueur 1 gagne", type="Info")
                     game.set_score(winner="player_1")
-                    [
-                        player.update_score(1)
-                        for player in tournament.players
-                        if player.national_chess_id
-                        == game.player_1.national_chess_id
-                    ]
-                    tournament.save()
-                    return tournament
+                    self.update_scores(game=game, winner="player_1")
+                    self.tournament.save()
+                    return self.tournament
                 case "2":
                     alert_message(message="Le joueur 2 gagne", type="Info")
                     game.set_score(winner="player_2")
-                    [
-                        player.update_score(1)
-                        for player in tournament.players
-                        if player.national_chess_id
-                        == game.player_2.national_chess_id
-                    ]
-                    tournament.save()
-                    return tournament
+                    self.update_scores(game=game, winner="player_2")
+                    self.tournament.save()
+                    return self.tournament
                 case "3":
                     alert_message(message="Egalité", type="Info")
                     game.set_score(winner="none")
                     players_id = []
                     players_id.append(game.player_1.national_chess_id)
                     players_id.append(game.player_2.national_chess_id)
-                    for player in tournament.players:
+                    for player in self.tournament.players:
                         if player.national_chess_id in players_id:
                             player.update_score(0.5)
-                    tournament.save()
-                    return tournament
+                    self.tournament.save()
+                    return self.tournament
                 case _:
                     return
 
-    def end_round(self, tournament: TournamentModel) -> TournamentModel:
+    def end_round(self) -> TournamentModel:
         """Ends the current round and prepare the next"""
-        current_round = tournament.rounds_list[tournament.current_round - 1]
-        if not [game.get_winner() is None for game in current_round.games]:
+        if not [game.get_winner() is None for game in self.current_round.games]:
             alert_message(
                 message="Tous les matchs ne sont pas terminés.", type="Error"
             )
         else:
-            tournament.rounds_list[
-                tournament.current_round - 1
-            ] = current_round.set_round_end()
-            tournament.current_round += 1
-            if tournament.current_round < tournament.round_number:
-                tournament.rounds_list.append(
-                    self.new_round(tournament=tournament)
+            self.tournament.rounds_list[
+                self.tournament.current_round - 1
+            ] = self.current_round.set_round_end()
+            self.tournament.current_round += 1
+            if self.tournament.current_round <= self.tournament.round_number:
+                self.tournament.rounds_list.append(
+                    self.new_round()
                 )
-                tournament.save()
+                self.tournament.save()
             else:
                 alert_message(message="Tournoi terminé")
-            return tournament
+            return self.tournament
 
-    def new_round(self, tournament: TournamentModel) -> RoundModel:
+    def new_round(self) -> RoundModel:
         """Adds a new round with players paired to the current tournament"""
         sorted_players = self.sort_players_for_game(
-            current_round=tournament.current_round, players=tournament.players
+            current_round=self.tournament.current_round,
+            players=self.tournament.players,
         )
         new_round = self.pair_players(
-            current_round=tournament.current_round,
+            current_round=self.tournament.current_round,
             players=sorted_players,
-            previous_rounds=tournament.rounds_list[
-                : tournament.current_round - 1
+            previous_rounds=self.tournament.rounds_list[
+                : self.tournament.current_round - 1
             ],
-            round_number=tournament.round_number,
+            round_number=self.tournament.round_number,
         )
         return new_round
 
@@ -220,3 +213,11 @@ class RoundController:
                 for game in p_round.games
             ]
         return previous_pairs
+
+    def update_scores(self, game: GameModel, winner: str) -> None:
+        p = game.player_1 if winner == "player_1" else game.player_2
+        [
+            player.update_score(1)
+            for player in self.tournament.players
+            if player.national_chess_id == p.national_chess_id
+        ]

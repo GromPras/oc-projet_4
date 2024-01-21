@@ -86,6 +86,13 @@ class TournamentModel:
                 raise OperationError(
                     message="Le tournoi n'a pas pu être supprimé")
 
+    def get_players(self) -> List[PlayerModel]:
+        if len(self.players) > 0:
+            if not isinstance(self.players[0], PlayerModel):
+                return [PlayerModel(**player) for player in self.players]
+            else:
+                return self.players
+
     @classmethod
     def get_all(cls) -> List[str]:
         """Returns all saved tournaments in data folder"""
