@@ -17,15 +17,15 @@ def tournament_form() -> Dict[str, Any]:
         },
         "starts": {
             "prompt": "Date de début (format : jjmmaaaa) : ",
-            "validation_func": lambda v: validation.field_date,
+            "validation_func": lambda v: validation.field_date(v),
         },
         "ends": {
             "prompt": "Date de fin (format : jjmmaaaa) : ",
-            "validation_func": lambda v: validation.field_date,
+            "validation_func": lambda v: validation.field_date(v),
         },
         "round_number": {
             "prompt": "En combien de tous le tournoi se joue? (4 minimum) : ",
-            "validation_func": lambda v: validation.field_number,
+            "validation_func": lambda v: validation.field_number(v),
         },
         "description": {
             "prompt": "Entrez une description si vous le souhaitez : ",

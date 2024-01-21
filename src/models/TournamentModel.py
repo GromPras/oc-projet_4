@@ -43,7 +43,7 @@ class TournamentModel:
     def save(self, archive=False) -> TournamentModel | None:
         """Saves a tournament object to a json file"""
         self_dictionnary = self.__dict__
-        if isinstance(self.players[0], PlayerModel):
+        if len(self.players) > 0 and isinstance(self.players[0], PlayerModel):
             self_dictionnary["players"] = [
                 player.__dict__ for player in self.players
             ]

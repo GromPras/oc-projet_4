@@ -17,11 +17,11 @@ def player_form() -> Dict[str, Any]:
         },
         "birth_date": {
             "prompt": "Date de naissance (format: jjmmaaaa) : ",
-            "validation_func": validation.field_date,
+            "validation_func": lambda v: validation.field_date(v),
         },
         "national_chess_id": {
-            "prompt": "Identifiant national d'échecs (format: AA00000A) : ",
-            "validation_func": validation.national_chess_id,
+            "prompt": "Identifiant national d'échecs (format: AA00000) : ",
+            "validation_func": lambda v: validation.national_chess_id(v),
         },
     }
 
