@@ -9,3 +9,6 @@ def alert_message(message: str, type: ALLOWED_TYPES = "Info") -> None:
     type: ALLOWED_TYPES = Literal["Info", "Error"]
     """
     print(message)
+
+    print()
+    input("Appuyez sur la touche [Entrée] pour retourner au menu")

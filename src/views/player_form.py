@@ -1,9 +1,12 @@
 from typing import Dict, Any
 from utils import validation
+from utils.functions import clear_screen
 
 
 def player_form() -> Dict[str, Any]:
     """A function that acts as a form to create a player"""
+    clear_screen()
+
     new_player = {}
 
     fields_requirements = {

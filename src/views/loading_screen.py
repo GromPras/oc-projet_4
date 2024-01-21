@@ -1,10 +1,12 @@
 from typing import Dict
 from views.alert_message import alert_message
 from views.good_bye_screen import good_bye_screen
+from utils.functions import clear_screen
 
 
 def loading_screen(data: Dict[str, str], title="", return_raw_input=False) -> str:
     """A function to print a list of item for the user to choose from"""
+    clear_screen()
     while True:
         try:
             print(title)
