@@ -18,7 +18,7 @@ class TournamentController():
         new_tournament = TournamentModel(**payload)
         # TODO: handle errors
         new_tournament.save()
-        self.show(new_tournament.id)
+        self.show(new_tournament.get_id())
 
     def load(self) -> None:
         """Calls the form to load a saved tournament
