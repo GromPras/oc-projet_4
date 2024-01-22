@@ -1,6 +1,4 @@
 from controllers.ApplicationController import ApplicationController
-# routes
-# index: HomeController -> index()
 
 
 if __name__ == "__main__":

@@ -12,16 +12,19 @@ def loading_screen(
     """A function to print a list of item for the user to choose from
     Can return the raw input, a string or None
     """
-    if clear_previous_screen:
-        clear_screen()
     while True:
+        if clear_previous_screen:
+            clear_screen()
         try:
             print(title)
             [print(f"{key}: {data[key]}") for key in data.keys()]
 
             user_choice = input("Sélectionnez un élément de la liste: ")
             if raw_input:
-                return user_choice
+                if user_choice in data.keys():
+                    return user_choice
+                else:
+                    raise KeyError
             user_choice = data[user_choice]
             if user_choice == "Annuler" or "q":
                 alert_message(message="Retour au menu précédent", type="Info")

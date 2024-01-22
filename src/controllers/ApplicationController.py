@@ -44,7 +44,8 @@ class ApplicationController:
         user_choice = loading_screen(
             data={key: option["name"] for key, option in main_menu.items()},
             title=app_logo,
-            raw_input=True
+            raw_input=True,
+            clear_previous_screen=True
         )
         return main_menu[user_choice]["controller"]()
 
