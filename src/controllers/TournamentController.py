@@ -4,6 +4,7 @@ from models.TournamentModel import TournamentModel
 from views.shared.alert_message import alert_message
 from views.shared.loading_screen import loading_screen
 from views.tournament.TournamentViews import TournamentViews
+from utils.errors import SaveError
 
 
 class TournamentController():
@@ -16,9 +17,11 @@ class TournamentController():
         and calls the show() function"""
         payload = self.views.new()
         new_tournament = TournamentModel(**payload)
-        # TODO: handle errors
-        new_tournament.save()
-        self.show(new_tournament.get_id())
+        try:
+            new_tournament.save()
+            self.show(new_tournament.get_id())
+        except SaveError as e:
+            alert_message(message=str(e), type="Error")
 
     def load(self) -> None:
         """Calls the form to load a saved tournament
