@@ -52,7 +52,6 @@ class TournamentViews:
 
     def show(
         self,
-        menu: Dict[str, str],
         tournament: TournamentModel
     ) -> str:
         clear_screen()
@@ -64,10 +63,3 @@ Se joue en {tournament.number_of_rounds} tours. Tour actuel : {tournament.curren
         if tournament.description != "":
             print(tournament.description)
         print("_"*80)
-
-        return loading_screen(
-            data=menu,
-            title="Que voulez-vous faire ?",
-            raw_input=True,
-            clear_previous_screen=False
-        )

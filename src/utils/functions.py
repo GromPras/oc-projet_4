@@ -15,3 +15,7 @@ def generate_id(type: ALLOWED_ID_TYPE) -> str:
     gmt = time.gmtime()
     timestamp = calendar.timegm(gmt)
     return str(f"{type[0]}{timestamp}")
+
+
+def spacer(length) -> str:
+    return " " * length

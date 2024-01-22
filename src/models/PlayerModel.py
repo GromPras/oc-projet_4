@@ -1,6 +1,5 @@
 from __future__ import annotations
 import json
-from typing import Optional
 from utils.errors import SaveError, LoadError
 
 
@@ -85,3 +84,28 @@ class PlayerModel:
                 if player.national_chess_id == national_chess_id
             ]
             return player_data[0] if len(player_data) > 0 else None
+
+    @classmethod
+    def get_tournament_players(cls, tournament_id: str):
+        data = []
+        tournament_players = []
+        try:
+            with open(f"data/tournament_players/{tournament_id}") as json_file:
+                data = json.load(json_file)
+
+            for line_item in data:
+                tournament_players.append(
+                    {
+                        "player": PlayerModel.load_by_id(
+                            line_item["player_id"]
+                        ),
+                        "player_score": line_item["player_score"]
+                    }
+                )
+
+            return tournament_players
+
+        except OSError:
+            raise LoadError(
+                message="[ERREUR]: le fichier joueurs n'a pas pu être chargé"
+            )

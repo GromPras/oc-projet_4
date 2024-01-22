@@ -44,8 +44,13 @@ class TournamentController():
         menu_options = {key: option["name"]
                         for key, option in tournament_menu.items()}
         while True:
-            user_choice = self.views.show(
-                menu=menu_options, tournament=tournament)
+            self.views.show(tournament=tournament)
+            user_choice = loading_screen(
+                data=menu_options,
+                title="Que voulez-vous faire ?",
+                raw_input=True,
+                clear_previous_screen=False
+            )
             tournament_menu[user_choice]["controller"]()
             if user_choice == "q" or user_choice == "Quitter":
                 alert_message(
