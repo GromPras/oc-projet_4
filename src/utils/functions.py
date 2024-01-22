@@ -8,7 +8,8 @@ ALLOWED_ID_TYPE = Literal["TOURNAMENT", "GAME", "ROUND"]
 
 
 def clear_screen() -> None:
-    os.system('cls' if os.name == 'nt' else 'clear')
+    # os.system('cls' if os.name == 'nt' else 'clear')
+    pass
 
 
 def generate_id(type: ALLOWED_ID_TYPE) -> str:

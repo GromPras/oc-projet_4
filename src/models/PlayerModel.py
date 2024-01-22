@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import os
 from utils.errors import SaveError, LoadError
 
 
@@ -34,14 +35,36 @@ class PlayerModel:
         else:
             players = []
 
-        # Removes score attribute before saving player
-        delattr(self, "score")
         players.append(self)
         try:
-            with open("data/players.json", "w", encoding="UTF-8") as json_file:
+            with open(
+                "data/players/players.json", "w", encoding="UTF-8"
+            ) as json_file:
                 json.dump([player.__dict__ for player in players], json_file)
 
             return self
+        except OSError:
+            raise SaveError(
+                message="[ERREUR]: le fichier n'a pas pu être sauvegardé"
+            )
+
+    def save_in_tournament(self, tournament_id: str):
+        full_path = f'data/tournament_players/{tournament_id}'
+        new_tournament_player = {
+            "player_id": self.national_chess_id,
+            "player_score": 0,
+        }
+        tournament_players = self.get_tournament_players(
+            tournament_id=tournament_id, raw_data=True)
+        if tournament_players:
+            if new_tournament_player in tournament_players:
+                return
+        else:
+            tournament_players = []
+        tournament_players.append(new_tournament_player)
+        try:
+            with open(full_path, "w", encoding="UTF-8") as json_file:
+                json.dump(tournament_players, json_file)
         except OSError:
             raise SaveError(
                 message="[ERREUR]: le fichier n'a pas pu être sauvegardé"
@@ -75,23 +98,25 @@ class PlayerModel:
     def load_by_id(cls, id: str) -> PlayerModel | None:
         """Takes the nid of a player or its __repr__ to load a Player object
         Returns None if no player could be loaded"""
-        national_chess_id = id.split(" ")[0]
         players = cls.get_all()
-        if players and national_chess_id:
+        if players and id:
             player_data = [
                 player
                 for player in players
-                if player.national_chess_id == national_chess_id
+                if player.national_chess_id == id
             ]
             return player_data[0] if len(player_data) > 0 else None
 
     @classmethod
-    def get_tournament_players(cls, tournament_id: str):
+    def get_tournament_players(cls, tournament_id: str, raw_data=False):
         data = []
         tournament_players = []
         try:
             with open(f"data/tournament_players/{tournament_id}") as json_file:
                 data = json.load(json_file)
+
+            if raw_data:
+                return data
 
             for line_item in data:
                 tournament_players.append(

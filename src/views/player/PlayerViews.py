@@ -1,6 +1,7 @@
 from typing import List, Dict
 from models.PlayerModel import PlayerModel
 from utils.functions import clear_screen, spacer
+from utils import validation
 
 
 class PlayerViews:
@@ -25,3 +26,33 @@ class PlayerViews:
 {contender['player_score']}| \
 {contender['player'].national_chess_id}| \
 {contender["player"].fullname()}""")
+
+    def player_form(self) -> Dict[str, str]:
+        clear_screen()
+        new_player = {}
+
+        fields_requirements = {
+            "first_name": {
+                "prompt": "Prénom : ",
+                "validation_func": lambda v: validation.field_length(v, 2),
+            },
+            "last_name": {
+                "prompt": "Nom : ",
+                "validation_func": lambda v: validation.field_length(v, 2),
+            },
+            "birth_date": {
+                "prompt": "Date de naissance (format: jjmmaaaa) : ",
+                "validation_func": lambda v: validation.field_date(v),
+            },
+            "national_chess_id": {
+                "prompt": "Identifiant national d'échecs (format: AA00000) : ",
+                "validation_func": lambda v: validation.national_chess_id(v),
+            },
+        }
+
+        for field, requirements in fields_requirements.items():
+            new_player[field] = validation.validate_input(
+                requirements["prompt"], requirements["validation_func"]
+            )
+
+        return new_player

@@ -69,4 +69,4 @@ def national_chess_id(value: str) -> str:
             message="Format de l'identifiant national d'échecs invalide \
                 Format valide: AA00000"
         )
-    return value
+    return value.upper()
