@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+data/
+documents/
+exercices/
+
+# temporary
+src/models/__GameModel.py
