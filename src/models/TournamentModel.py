@@ -20,7 +20,7 @@ class TournamentModel:
         description: str = "",
         current_round: int = 0,
     ) -> None:
-        self.id = id if id != "" else generate_id()
+        self.id = id if id != "" else generate_id(type="TOURNAMENT")
         self.name = name
         self.location = location
         self.starts = starts
