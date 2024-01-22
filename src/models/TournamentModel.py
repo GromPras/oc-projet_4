@@ -1,10 +1,9 @@
 from __future__ import annotations
 import os
 import json
-from typing import List
+from typing import List, Optional
+from utils.functions import generate_id
 from utils.errors import SaveError, OperationError
-from models.RoundModel import RoundModel
-from models.PlayerModel import PlayerModel
 
 
 class TournamentModel:
@@ -16,10 +15,12 @@ class TournamentModel:
         location: str,
         starts: str,
         ends: str,
+        id: str = "",
         number_of_rounds: int = 4,
         description: str = "",
         current_round: int = 0,
     ) -> None:
+        self.id = id if id != "" else generate_id()
         self.name = name
         self.location = location
         self.starts = starts
@@ -31,22 +32,21 @@ class TournamentModel:
     def __repr__(self) -> str:
         return f"{self.name} - {self.location} - \
 Du {self.starts} au {self.ends} \
-Joué en {self.round_number} tours - Tour actuel: {self.current_round}"
+Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
 
     def save(self, archive=False) -> None:
         """Saves a Tournament to a json file
         If archive is True, the file is saved in the /archived directory
         """
-        self_dict = self.to_dict()
-        file_name = f"{self.starts}_tournoi_{self.name}.json"
+        self_dict = self.__dict__
+        file_name = f"{self.id}.json"
         try:
             with open(
-                f"data/tournaments/{'archived/' if archive else ''}{file_name}",
+                f"data/tournaments/{'archives/' if archive else ''}{file_name}",
                 mode="w",
                 encoding="UTF-8",
             ) as json_file:
                 json.dump(self_dict, json_file)
-                return self
         except OSError:
             raise SaveError(
                 message="[ERREUR]: le fichier {file_name} n'a pas pu être sauvegardé"
