@@ -47,3 +47,13 @@ class TournamentViews:
                 new_tournament[field] = input(requirements["prompt"])
 
         return new_tournament
+
+    def show(self, tournament) -> None:
+        clear_screen()
+        print(f"""
+{tournament.id} - {tournament.name}
+[{tournament.location}] Du {tournament.starts} au {tournament.ends}
+Se joue en {tournament.number_of_rounds} tours.
+Tour actuel : {tournament.current_round}
+{tournament.description if not None else ""}
+""")

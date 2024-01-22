@@ -10,4 +10,4 @@ def clear_screen() -> None:
 def generate_id() -> str:
     gmt = time.gmtime()
     timestamp = calendar.timegm(gmt)
-    return str(timestamp)
+    return str(f"T{timestamp}")

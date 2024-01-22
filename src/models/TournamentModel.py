@@ -42,7 +42,7 @@ Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
         file_name = f"{self.id}.json"
         try:
             with open(
-                f"data/tournaments/{'archives/' if archive else ''}{file_name}",
+                f"data/{'archives/' if archive else 'tournaments/'}{file_name}",
                 mode="w",
                 encoding="UTF-8",
             ) as json_file:
@@ -63,20 +63,23 @@ Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
                     message="[ERREUR]: Le tournoi n'a pas pu être archivé"
                 )
 
-    def to_dict(self) -> None:
-        self_dict = self.__dict__
-        if len(self.players > 0):
-            self_dict["players"] = [player.__dict__ for player in self.players]
-        if len(self.rounds_list) > 0:
-            self_dict["rounds_list"] = [
-                game_round.to_dict() for game_round in self.rounds_list
-            ]
+    # def to_dict(self) -> None:
+    #     self_dict = self.__dict__
+    #     if len(self.players > 0):
+    #         self_dict["players"] = [player.__dict__ for player in self.players]
+    #     if len(self.rounds_list) > 0:
+    #         self_dict["rounds_list"] = [
+    #             game_round.to_dict() for game_round in self.rounds_list
+    #         ]
 
     @classmethod
-    def get_all(cls) -> List[str]:
+    def get_all(cls) -> List[TournamentModel]:
         """Returns all tournaments files in data/tournaments/ folder"""
         tournaments = os.listdir("data/tournaments")
         tournaments = sorted(tournaments, reverse=True)
+        tournaments = [cls.load_by_id(tournament)
+                       for tournament in tournaments]
+        return tournaments
 
     @classmethod
     def load_by_id(cls, id: str) -> TournamentModel:
