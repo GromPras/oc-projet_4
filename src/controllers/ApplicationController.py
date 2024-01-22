@@ -46,15 +46,15 @@ class ApplicationController:
             title=app_logo,
             raw_input=True
         )
-        if user_choice:
-            return main_menu[user_choice]["controller"]()
+        return main_menu[user_choice]["controller"]()
 
-    def exit_app(self) -> None:
+    def exit_app(self) -> bool:
         """Exits the application, displaying a nice message."""
         alert_message(
             message="Merci d'avoir utilisé cette application, à bientôt!",
             type="Info"
         )
+        return False
 
     def run(self) -> None:
         self.index()

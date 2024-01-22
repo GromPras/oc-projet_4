@@ -1,6 +1,8 @@
 from typing import Any, Dict
+from models.TournamentModel import TournamentModel
 from utils.functions import clear_screen
 from utils import validation
+from views.shared.loading_screen import loading_screen
 
 
 class TournamentViews:
@@ -48,12 +50,24 @@ class TournamentViews:
 
         return new_tournament
 
-    def show(self, tournament) -> None:
+    def show(
+        self,
+        menu: Dict[str, str],
+        tournament: TournamentModel
+    ) -> str:
         clear_screen()
         print(f"""
-{tournament.id} - {tournament.name}
+{tournament.name}
 [{tournament.location}] Du {tournament.starts} au {tournament.ends}
-Se joue en {tournament.number_of_rounds} tours.
-Tour actuel : {tournament.current_round}
-{tournament.description if not None else ""}
+Se joue en {tournament.number_of_rounds} tours. Tour actuel : {tournament.current_round}
 """)
+        if tournament.description != "":
+            print(tournament.description)
+        print("_"*80)
+
+        return loading_screen(
+            data=menu,
+            title="Que voulez-vous faire ?",
+            raw_input=True,
+            clear_previous_screen=False
+        )

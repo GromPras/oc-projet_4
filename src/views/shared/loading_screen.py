@@ -3,12 +3,17 @@ from utils.functions import clear_screen
 from views.shared.alert_message import alert_message
 
 
-def loading_screen(data: Dict[str, str], title: str, raw_input=True) -> str:
-    print(title)
+def loading_screen(
+    data: Dict[str, str],
+    title: str,
+    raw_input=True,
+    clear_previous_screen=True
+) -> str:
     """A function to print a list of item for the user to choose from
     Can return the raw input, a string or None
     """
-    clear_screen()
+    if clear_previous_screen:
+        clear_screen()
     while True:
         try:
             print(title)

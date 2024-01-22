@@ -63,6 +63,8 @@ Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
                     message="[ERREUR]: Le tournoi n'a pas pu être archivé"
                 )
 
+    def get_id(self) -> str:
+        return f"{self.id}.json"
     # def to_dict(self) -> None:
     #     self_dict = self.__dict__
     #     if len(self.players > 0):
