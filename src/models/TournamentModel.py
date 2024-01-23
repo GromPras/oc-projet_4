@@ -65,14 +65,6 @@ Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
 
     def get_id(self) -> str:
         return f"{self.id}.json"
-    # def to_dict(self) -> None:
-    #     self_dict = self.__dict__
-    #     if len(self.players > 0):
-    #         self_dict["players"] = [player.__dict__ for player in self.players]
-    #     if len(self.rounds_list) > 0:
-    #         self_dict["rounds_list"] = [
-    #             game_round.to_dict() for game_round in self.rounds_list
-    #         ]
 
     @classmethod
     def get_all(cls) -> List[TournamentModel]:

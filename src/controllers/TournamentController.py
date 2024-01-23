@@ -1,5 +1,6 @@
 from typing import Any, Dict
 from controllers.PlayerController import PlayerController
+from controllers.RoundController import RoundController
 from models.TournamentModel import TournamentModel
 from views.shared.alert_message import alert_message
 from views.shared.loading_screen import loading_screen
@@ -62,9 +63,17 @@ class TournamentController():
             else:
                 continue
 
-    def start_tournament(self, tournament_id: str) -> None:
-        """Increment the tournament current round and add a new round to the rounds list"""
-        print("TODO: Start tournament")
+    def start_round(self, tournament_id: str) -> None:
+        """Increment the tournament current round
+        and add a new round to the rounds list"""
+        tournament = TournamentModel.load_by_id(tournament_id)
+        tournament.current_round += 1
+        RoundController().new(
+            tournament_id=tournament.get_id(),
+            round_number=tournament.current_round
+        )
+        tournament.save()
+        self.show(tournament_id=tournament.get_id())
         input("Appuyez sur [Entrée] pour continuer.")
 
     def load_tournament_menu(
@@ -88,10 +97,32 @@ class TournamentController():
                 },
                 "3": {
                     "name": "Commencer le tournoi",
-                    "controller": lambda: self.start_tournament(
+                    "controller": lambda: self.start_round(
                         tournament_id=tournament_id
                     ),
                 },
+            }
+
+        if current_round == 1:
+            menu = {
+                "1": {
+                    "name": "Afficher les joueurs du tournoi",
+                    "controller": lambda: PlayerController().show_tournament_players(
+                        tournament_id=tournament_id
+                    ),
+                },
+                "2": {
+                    "name": "Afficher les tours",
+                    "controller": lambda: print("Afficher les tours"),
+                },
+                "3": {
+                    "name": "Inscrire les résultats d'un match",
+                    "controller": lambda: print("Inscrire les résultats d'un match")
+                },
+                "4": {
+                    "name": "Passer au tour suivant (tous les matchs du tour doivent être finis)",
+                    "controller": lambda: print("Passer au tour suivant")
+                }
             }
 
         menu["q"] = {

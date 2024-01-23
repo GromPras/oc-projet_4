@@ -1,42 +1,56 @@
-from models.PlayerModel import PlayerModel
+import os
+import json
+from utils.errors import LoadError, SaveError
 
 
 class GameModel:
     """Model class for the Game objects"""
 
-    def __init__(self, player_1: PlayerModel, player_2: PlayerModel, player_1_score: float = 0.0, player_2_score: float = 0.0) -> None:
-        self.player_1 = player_1
-        self.player_2 = player_2
+    def __init__(
+        self,
+        round_id: str,
+        player_1_id: str,
+        player_2_id: str,
+        player_1_score: float = 0.0,
+        player_2_score: float = 0.0,
+    ) -> None:
+        self.round_id = round_id.split(".")[0]
+        self.player_1_id = player_1_id
+        self.player_2_id = player_2_id
         self.player_1_score = player_1_score
         self.player_2_score = player_2_score
-    
-    def __repr__(self) -> str:
-        return f"Joueur 1 : {self.player_1.fullname()} - {self.player_1_score} contre\
-{self.player_2.fullname()} - {self.player_2_score}"
 
-    def set_scores(self, winner: str) -> None:
-        match winner:
-            case "player_1":
-                self.player_1_score = 1
-                self.player_1.update_score(1)
-            case "player_2":
-                self.player_2_score = 1
-                self.player_2.update_score(1)
-            case "none":
-                self.player_1_score = 0.5
-                self.player_2_score = 0.5
-                self.player_1.update_score(0.5)
-                self.player_2.update_score(0.5)
-    
-    def get_winner(self) -> str | None:
-        if self.player_1_score and self.player_2_score == 0:
+    def save(self) -> None:
+        """Saves the Game in the round's games list"""
+        t_round = f"{self.round_id}.json"
+        games = self.get_rounds_games(t_round)
+        if games:
+            if self.__dict__ in [game.__dict__ for game in games]:
+                return
+        else:
+            games = []
+
+        games.append(self)
+        try:
+            with open(f"data/games/{t_round}", "w", encoding="UTF-8") as json_file:
+                json.dump([game.__dict__ for game in games], json_file)
+        except OSError:
+            raise SaveError(
+                message="[ERREUR]: le fichier {file_name} n'a pas pu être sauvegardé"
+            )
+
+    @classmethod
+    def get_rounds_games(cls, round_id: str):
+        games_data = []
+        if not os.path.exists(f"data/games/{round_id}"):
+            return
+        try:
+            with open(f"data/games/{round_id}", "r") as json_file:
+                games_data = json.load(json_file)
+            if games_data:
+                games = [cls(**game) for game in games_data]
+                return games
             return None
-        elif self.player_1_score and self.player_2_score == 0.5:
-            return "Egalité"
-        return (
-            f"{self.player_1.fullname()}" if self.player_1_score > self.player_2_score else f"{self.player_2.fullname()}"
-        )
-    
-    def get_players_names(self) -> str:
-        return f"{self.player_1.fullname()} contre {self.player_2.fullname()}"
-    
+        except OSError:
+            raise LoadError(
+                message="[ERREUR]: le fichier joueurs n'a pas pu être chargé")
