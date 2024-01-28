@@ -70,15 +70,8 @@ class RoundController:
         t_rounds = [
             {
                 "round": r,
-                "games": [
-                    {
-                        "player_1": PlayerModel.load_by_id(g.player_1_id),
-                        "player_1_score": g.player_1_score,
-                        "player_2": PlayerModel.load_by_id(g.player_2_id),
-                        "player_2_score": g.player_2_score
-                    }
-                    for g in GameModel.get_rounds_games(round_id=r.get_id())]
+                "games": GameModel.get_rounds_games(round_id=r.get_id())
             } for r in t_rounds
         ]
         views.show_rounds(rounds=t_rounds)
-        input()
+        input("Appuyez sur [Entrée] pour continuer")

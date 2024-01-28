@@ -69,13 +69,20 @@ class PlayerModel:
             raise SaveError(
                 message="[ERREUR]: le fichier n'a pas pu être sauvegardé"
             )
-
-    def update_score(self, value: float) -> None:
+    
+    def update_score(self, tournament_id: str, value: float) -> None:
+        t_players = self.get_tournament_players(tournament_id=tournament_id, raw_data=True)
+        for p in t_players:
+            if p["player_id"] == self.national_chess_id:
+                p["player_score"] += value
         try:
-            self.score += float(value)
-        except ValueError:
+            print(t_players)
+            full_path = f'data/tournament_players/{tournament_id}'
+            with open(full_path, "w", encoding="UTF-8") as json_file:
+                json.dump(t_players, json_file)
+        except OSError:
             raise SaveError(
-                message="Le score doit être un nombre, aucune modification n'a été effectuée"
+                message="[ERREUR]: le fichier n'a pas pu être sauvegardé"
             )
 
     @classmethod

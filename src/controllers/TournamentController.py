@@ -1,6 +1,8 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from controllers.PlayerController import PlayerController
 from controllers.RoundController import RoundController
+from controllers.GameController import GameController
+from models.RoundModel import RoundModel
 from models.TournamentModel import TournamentModel
 from views.shared.alert_message import alert_message
 from views.shared.loading_screen import loading_screen
@@ -41,9 +43,15 @@ class TournamentController():
 
     def show(self, tournament_id: str) -> None:
         tournament = TournamentModel.load_by_id(tournament_id)
+        current_round_id = None
+        if tournament.current_round > 0:
+            t_rounds = RoundModel.get_tournament_rounds(tournament_id=tournament_id)
+            sorted_rounds = sorted(t_rounds, key= lambda r: r.name)
+            current_round_id = sorted_rounds[tournament.current_round - 1].get_id()
         tournament_menu = self.load_tournament_menu(
             current_round=tournament.current_round,
             tournament_id=tournament.get_id(),
+            current_round_id=current_round_id
         )
         menu_options = {key: option["name"]
                         for key, option in tournament_menu.items()}
@@ -77,7 +85,7 @@ class TournamentController():
         input("Appuyez sur [Entrée] pour continuer.")
 
     def load_tournament_menu(
-        self, current_round: int, tournament_id: str
+        self, current_round: int, tournament_id: str, current_round_id: Optional[str] = None
     ) -> Dict[str, Dict[str, Any]]:
         """Returns a menu based on the current round number"""
         menu = {}
@@ -117,7 +125,7 @@ class TournamentController():
                 },
                 "3": {
                     "name": "Inscrire les résultats d'un match",
-                    "controller": lambda: print("Inscrire les résultats d'un match")
+                    "controller": lambda: GameController().set_game_result(round_id=current_round_id, tournament_id=tournament_id)
                 },
                 "4": {
                     "name": "Passer au tour suivant (tous les matchs du tour doivent être finis)",
