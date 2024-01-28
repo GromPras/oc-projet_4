@@ -113,7 +113,7 @@ class TournamentController():
                 },
                 "2": {
                     "name": "Afficher les tours",
-                    "controller": lambda: print("Afficher les tours"),
+                    "controller": lambda: RoundController().show_rounds(tournament_id=tournament_id),
                 },
                 "3": {
                     "name": "Inscrire les résultats d'un match",

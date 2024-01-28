@@ -5,6 +5,7 @@ from models.PlayerModel import PlayerModel
 from models.RoundModel import RoundModel
 from models.TournamentModel import TournamentModel
 from utils.errors import SaveError
+from views.round.RoundViews import RoundViews
 from views.shared.alert_message import alert_message
 
 
@@ -61,3 +62,23 @@ class RoundController:
             players = sorted(
                 players, key=lambda k: k["player_score"], reverse=True)
             return players
+
+    def show_rounds(self, tournament_id: str) -> None:
+        views = RoundViews()
+        tournament = TournamentModel.load_by_id(id=tournament_id)
+        t_rounds = RoundModel.get_tournament_rounds(tournament_id=tournament.get_id())
+        t_rounds = [
+            {
+                "round": r,
+                "games": [
+                    {
+                        "player_1": PlayerModel.load_by_id(g.player_1_id),
+                        "player_1_score": g.player_1_score,
+                        "player_2": PlayerModel.load_by_id(g.player_2_id),
+                        "player_2_score": g.player_2_score
+                    }
+                    for g in GameModel.get_rounds_games(round_id=r.get_id())]
+            } for r in t_rounds
+        ]
+        views.show_rounds(rounds=t_rounds)
+        input()
