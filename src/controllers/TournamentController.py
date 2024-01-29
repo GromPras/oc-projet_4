@@ -47,11 +47,13 @@ class TournamentController():
         if tournament.current_round > 0:
             t_rounds = RoundModel.get_tournament_rounds(tournament_id=tournament_id)
             sorted_rounds = sorted(t_rounds, key= lambda r: r.name)
-            current_round_id = sorted_rounds[tournament.current_round - 1].get_id()
+            if tournament.current_round < tournament.number_of_rounds:
+                current_round_id = sorted_rounds[tournament.current_round - 1].get_id()
         tournament_menu = self.load_tournament_menu(
             current_round=tournament.current_round,
             tournament_id=tournament.get_id(),
-            current_round_id=current_round_id
+            current_round_id=current_round_id,
+            max_rounds=tournament.number_of_rounds
         )
         menu_options = {key: option["name"]
                         for key, option in tournament_menu.items()}
@@ -84,8 +86,19 @@ class TournamentController():
         self.show(tournament_id=tournament.get_id())
         input("Appuyez sur [Entrée] pour continuer.")
 
+    def end_tournament(self, tournament_id: str) -> None:
+        tournament = TournamentModel.load_by_id(tournament_id)
+        tournament.add_round()
+        tournament.save()
+        self.show(tournament_id=tournament.get_id())
+        alert_message(message="Tournoi terminé")
+        input("Appuyez sur [Entrée] pour continuer.")
+
+    def archive_tournament(self, tournament_id: str) -> None:
+        pass
+
     def load_tournament_menu(
-        self, current_round: int, tournament_id: str, current_round_id: Optional[str] = None
+        self, current_round: int, tournament_id: str, max_rounds: int, current_round_id: Optional[str] = None
     ) -> Dict[str, Dict[str, Any]]:
         """Returns a menu based on the current round number"""
         menu = {}
@@ -123,15 +136,42 @@ class TournamentController():
                     "name": "Afficher les tours",
                     "controller": lambda: RoundController().show_rounds(tournament_id=tournament_id),
                 },
-                "3": {
-                    "name": "Inscrire les résultats d'un match",
-                    "controller": lambda: GameController().set_game_result(round_id=current_round_id, tournament_id=tournament_id)
-                },
-                "4": {
-                    "name": "Passer au tour suivant (tous les matchs du tour doivent être finis)",
-                    "controller": lambda: RoundController().end_round(tournament_id=tournament_id, round_id=current_round_id)
-                }
             }
+            if current_round < max_rounds:
+                menu.update(
+                    {
+                        "3": {
+                            "name": "Inscrire les résultats d'un match",
+                            "controller": lambda: GameController().set_game_result(round_id=current_round_id, tournament_id=tournament_id)
+                        },
+                        "4": {
+                            "name": "Passer au tour suivant (tous les matchs du tour doivent être finis)",
+                            "controller": lambda: RoundController().end_round(tournament_id=tournament_id, round_id=current_round_id)
+                        }
+                    }
+                )
+            elif current_round == max_rounds:
+                menu.update(
+                    {
+                        "3": {
+                            "name": "Inscrire les résultats d'un match",
+                            "controller": lambda: GameController().set_game_result(round_id=current_round_id, tournament_id=tournament_id)
+                        },
+                        "4": {
+                            "name": "Terminer le tournoi (tous les matchs du tour doivent être finis)",
+                            "controller": lambda: self.end_tournament(tournament_id=tournament_id)
+                        }
+                    }
+                )
+            elif current_round > max_rounds:
+                menu.update(
+                    {
+                        "3": {
+                            "name": "Archiver le tournoi",
+                            "controller": lambda: self.archive_tournament(tournament_id=tournament_id)
+                        }
+                    }
+                )
 
         menu["q"] = {
             "name": "Quitter",

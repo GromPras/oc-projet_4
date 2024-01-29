@@ -99,11 +99,12 @@ class RoundController:
         views = RoundViews()
         tournament = TournamentModel.load_by_id(id=tournament_id)
         t_rounds = RoundModel.get_tournament_rounds(tournament_id=tournament.get_id())
+        sorted_rounds = sorted(t_rounds, key= lambda r: r.name)
         t_rounds = [
             {
                 "round": r,
                 "games": GameModel.get_rounds_games(round_id=r.get_id())
-            } for r in t_rounds
+            } for r in sorted_rounds
         ]
         views.show_rounds(rounds=t_rounds)
         input("Appuyez sur [Entrée] pour continuer")
@@ -120,7 +121,6 @@ class RoundController:
     def get_previous_pairs(self, t_rounds: List[RoundModel]) -> List[List[str]]:
         pairs = []
         for r in t_rounds:
-            print(r)
             previous_games = GameModel.get_rounds_games(round_id=r.get_id())
             for g in previous_games:
                 pairs.append([g.player_1_id, g.player_2_id])
@@ -130,7 +130,8 @@ class RoundController:
     def find_new_opponent(self, player_1_id: str, previous_pairs: List[List[str]], possible_opponents: List[str]) -> str:
         new_opponent = None
         for o in possible_opponents:
-            if (player_1_id, o["player_id"]) not in previous_pairs:
+            potential_pair = [player_1_id, o["player_id"]]
+            if potential_pair not in previous_pairs:
                 new_opponent = o["player_id"]
                 return new_opponent
         return None

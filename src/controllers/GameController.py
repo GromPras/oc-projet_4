@@ -21,6 +21,8 @@ class GameController:
                 data=games_menu, title="Choisir le match :", raw_input=True
             )
             if user_choice:
+                if user_choice == "q":
+                    return
                 game = sorted_games[int(user_choice) - 1]
                 game_winner = views.game_winner(game=game.game_infos())
                 if isinstance(game_winner, str):
