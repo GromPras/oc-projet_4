@@ -30,6 +30,15 @@ class GameModel:
         return f"""{g["player_1"].fullname()} (score: {g["player_1_score"]}) \
 contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
 
+    def __dict__(self) -> Dict:
+        g = self.game_infos()
+        return {
+            "player_1": g["player_1"].fullname(),
+            "player_1_score": g["player_1_score"],
+            "player_2": g["player_2"].fullname(),
+            "player_2_score": g["player_2_score"],
+        }
+
     def save(self) -> None:
         """Saves the Game in the round's games list"""
         t_round = f"{self.round_id}.json"
@@ -107,3 +116,10 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
         except OSError:
             raise LoadError(
                 message="[ERREUR]: le fichier joueurs n'a pas pu être chargé")
+
+    @classmethod
+    def remove(cls, round_id: str) -> None:
+        try:
+            os.remove(f"data/games/{round_id}")
+        except OSError:
+            print(f"Error deleting {round_id} games files")

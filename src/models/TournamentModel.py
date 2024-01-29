@@ -52,16 +52,11 @@ Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
                 message="[ERREUR]: le fichier {file_name} n'a pas pu être sauvegardé"
             )
 
-    def archive(self) -> TournamentModel:
-        if self.save(archive=True) is not None:
-            try:
-                os.remove(
-                    f"data/tournaments/{self.starts}_tournoi_{self.name}.json"
-                )
-            except OSError:
-                raise OperationError(
-                    message="[ERREUR]: Le tournoi n'a pas pu être archivé"
-                )
+    def remove(self) -> None:
+        try:
+            os.remove(f"data/tournaments/{self.get_id()}")
+        except OSError:
+            print(f"Error deleting {self.id} tournament file")
 
     def get_id(self) -> str:
         return f"{self.id}.json"
@@ -86,3 +81,8 @@ Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
 
         tournament = cls(**tournament_data)
         return tournament
+
+    @classmethod
+    def get_archives(cls) -> List[]:
+        archives = os.listdir("data/archives")
+        archives = sorted(archives)

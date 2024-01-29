@@ -76,7 +76,6 @@ class PlayerModel:
             if p["player_id"] == self.national_chess_id:
                 p["player_score"] += value
         try:
-            print(t_players)
             full_path = f'data/tournament_players/{tournament_id}'
             with open(full_path, "w", encoding="UTF-8") as json_file:
                 json.dump(t_players, json_file)
@@ -141,3 +140,10 @@ class PlayerModel:
             raise LoadError(
                 message="[ERREUR]: le fichier joueurs n'a pas pu être chargé"
             )
+
+    @classmethod
+    def remove_tournament_players(cls, tournament_id: str) -> None:
+        try:
+            os.remove(f"data/tournament_players/{tournament_id}")
+        except OSError:
+            print(f"Error deleting {tournament_id} players file")

@@ -126,7 +126,7 @@ class RoundController:
                 pairs.append([g.player_1_id, g.player_2_id])
         
         return pairs
-    
+
     def find_new_opponent(self, player_1_id: str, previous_pairs: List[List[str]], possible_opponents: List[str]) -> str:
         new_opponent = None
         for o in possible_opponents:

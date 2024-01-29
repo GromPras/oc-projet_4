@@ -1,8 +1,11 @@
+import json
 from typing import Any, Dict, Optional
 from controllers.PlayerController import PlayerController
 from controllers.RoundController import RoundController
 from controllers.GameController import GameController
+from models.GameModel import GameModel
 from models.RoundModel import RoundModel
+from models.PlayerModel import PlayerModel
 from models.TournamentModel import TournamentModel
 from views.shared.alert_message import alert_message
 from views.shared.loading_screen import loading_screen
@@ -66,7 +69,9 @@ class TournamentController():
                 clear_previous_screen=False
             )
             tournament_menu[user_choice]["controller"]()
-            if user_choice == "q" or user_choice == "Quitter":
+            if tournament.current_round > tournament.number_of_rounds and user_choice == "3":
+                break
+            elif user_choice == "q" or user_choice == "Quitter":
                 alert_message(
                     message="Merci d'avoir utilisé l'application. A bientôt!")
                 break
@@ -94,8 +99,41 @@ class TournamentController():
         alert_message(message="Tournoi terminé")
         input("Appuyez sur [Entrée] pour continuer.")
 
-    def archive_tournament(self, tournament_id: str) -> None:
-        pass
+    def archive_tournament(self, tournament_id: str) -> str:
+        tournament = TournamentModel.load_by_id(id=tournament_id)
+        t_players = PlayerModel.get_tournament_players(tournament_id=tournament.get_id())
+        t_players_dict = [
+            {
+                "player": p["player"].__dict__,
+                "player_score": p["player_score"]
+            } for p in t_players
+        ]
+        t_rounds = RoundModel.get_tournament_rounds(tournament_id=tournament.get_id())
+        t_rounds_dict = [r.__dict__ for r in t_rounds]
+        for r in t_rounds_dict:
+            games = GameModel.get_rounds_games(round_id=f"{r['round_id']}.json")
+            if games:
+                r["games"] = [g.__dict__() for g in games]
+        t_dict = tournament.__dict__
+        t_dict["players"] = sorted(t_players_dict, key= lambda p: p["player_score"], reverse=True)
+        t_dict["rounds"] = t_rounds_dict
+        try:
+            with open(f"data/archives/{t_dict['starts']}_{t_dict['name']}.json", "w") as json_file:
+                json.dump(t_dict, json_file)
+            PlayerModel.remove_tournament_players(tournament_id=tournament.get_id())
+            tournament.remove()
+            for r in t_rounds:
+                games = GameModel.get_rounds_games(round_id=r.get_id())
+                if games:
+                    GameModel.remove(r.get_id())
+                r.remove()
+        except SaveError as e:
+            alert_message(message=str(e), type="Error")
+        alert_message(message="Tournoi Archivé, vous pourez le consulter depuis le menu principal.", type="Info")
+        return "Exit"
+
+    def archives(self) -> None:
+        tournaments = TournamentModel.get_archives()
 
     def load_tournament_menu(
         self, current_round: int, tournament_id: str, max_rounds: int, current_round_id: Optional[str] = None

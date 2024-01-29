@@ -36,6 +36,10 @@ class ApplicationController:
                 "name": "Charger un tournoi",
                 "controller": lambda: tournament_controller.load()
             },
+            "4": {
+                "name": "Afficher un tournoi archivé",
+                "controller": lambda: tournament_controller.archives()
+            },
             "q": {
                 "name": "Quitter",
                 "controller": lambda: self.exit_app()
