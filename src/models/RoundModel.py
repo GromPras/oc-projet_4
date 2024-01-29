@@ -21,7 +21,10 @@ class RoundModel:
         started_on: Optional[str] = None,
         ended_on: Optional[str] = None,
     ) -> None:
-        self.round_id = round_id if not None else generate_id(type="ROUND")
+        if round_id:
+            self.round_id = round_id.split(".")[0]
+        else:
+            self.round_id = generate_id(type="ROUND")
         self.tournament_id = tournament_id.split(".")[0]
         self.name = name
         self.started_on = started_on if started_on else datetime.now()

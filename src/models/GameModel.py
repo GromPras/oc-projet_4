@@ -27,8 +27,7 @@ class GameModel:
 
     def __repr__(self) -> str:
         g = self.game_infos()
-        return f"""
-{g["player_1"].fullname()} (score: {g["player_1_score"]}) \
+        return f"""{g["player_1"].fullname()} (score: {g["player_1_score"]}) \
 contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
 
     def save(self) -> None:

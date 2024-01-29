@@ -9,9 +9,11 @@ class RoundViews:
     def show_rounds(self, rounds: List[Dict[RoundModel, List[Dict[PlayerModel, float]]]]) -> None:
         clear_screen()
         for index, r in enumerate(rounds, 1):
-            print(f"""
-{r['round'].name} \
-Début: {r['round'].started_on.split('.')[0]} - Fin: {r['round'].ended_on.split('.')[0] if not "None" else "En cours"}""")
+            start = r['round'].started_on.split('.')[0]
+            end = "En cours"
+            if r['round'].ended_on != "None":
+                end = r['round'].ended_on.split('.')[0]
+            print(f"""{r['round'].name} Début: {start} - Fin: {end}""")
             print("-"*40)
             for g in r["games"]:
                 print(g.__repr__())

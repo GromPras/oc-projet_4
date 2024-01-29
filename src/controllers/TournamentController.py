@@ -111,7 +111,7 @@ class TournamentController():
                 },
             }
 
-        if current_round == 1:
+        if current_round >= 1:
             menu = {
                 "1": {
                     "name": "Afficher les joueurs du tournoi",
@@ -129,7 +129,7 @@ class TournamentController():
                 },
                 "4": {
                     "name": "Passer au tour suivant (tous les matchs du tour doivent être finis)",
-                    "controller": lambda: print("Passer au tour suivant")
+                    "controller": lambda: RoundController().end_round(tournament_id=tournament_id, round_id=current_round_id)
                 }
             }
 

@@ -66,6 +66,9 @@ Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
     def get_id(self) -> str:
         return f"{self.id}.json"
 
+    def add_round(self) -> None:
+        self.current_round += 1
+
     @classmethod
     def get_all(cls) -> List[TournamentModel]:
         """Returns all tournaments files in data/tournaments/ folder"""
