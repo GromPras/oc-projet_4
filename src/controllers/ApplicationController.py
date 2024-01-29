@@ -43,13 +43,17 @@ class ApplicationController:
                 "controller": lambda: self.exit_app()
             }
         }
-        user_choice = loading_screen(
-            data={key: option["name"] for key, option in main_menu.items()},
-            title=app_logo,
-            raw_input=True,
-            clear_previous_screen=True
-        )
-        return main_menu[user_choice]["controller"]()
+        while True:
+            user_choice = loading_screen(
+                data={key: option["name"] for key, option in main_menu.items()},
+                title=app_logo,
+                raw_input=True,
+                clear_previous_screen=True
+            )
+            if user_choice == "q":
+                self.exit_app()
+                break
+            main_menu[user_choice]["controller"]()
 
     def exit_app(self) -> bool:
         """Exits the application, displaying a nice message."""

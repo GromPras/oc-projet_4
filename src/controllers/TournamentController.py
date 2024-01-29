@@ -41,8 +41,10 @@ class TournamentController():
         user_choice = loading_screen(
             data=load_menu, title="Tounois sauvegardés :", raw_input=True
         )
-        if user_choice:
+        if user_choice and user_choice != "q":
             self.show(saved_tournaments[int(user_choice) - 1].get_id())
+        else:
+            return
 
     def show(self, tournament_id: str) -> None:
         tournament = TournamentModel.load_by_id(tournament_id)

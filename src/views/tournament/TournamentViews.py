@@ -86,3 +86,4 @@ S'est joué en {archived_tournament["number_of_rounds"]} tours
 contre {g["player_2"]} (score: {g["player_2_score"]})""")
             if index < len(archived_tournament["rounds"]):
                 print("-"*40)
+        input("Appuyez sur [Entrée] pour continuer.")

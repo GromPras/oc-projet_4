@@ -1,5 +1,7 @@
 from models.GameModel import GameModel
 from models.PlayerModel import PlayerModel
+from models.RoundModel import RoundModel
+from models.TournamentModel import TournamentModel
 from views.game.GameViews import GameViews
 from views.shared.loading_screen import loading_screen
 from utils.errors import SaveError
@@ -9,8 +11,8 @@ class GameController:
     def set_game_result(self, round_id: str, tournament_id: str) -> None:
         """Function to write the result of a game
         Takes the tournament's and round's ids to identify the round and update dependencies"""
-
-        games = GameModel.get_rounds_games(round_id=round_id)
+        current_round = RoundModel.get_tournament_rounds(tournament_id=tournament_id)[-1]
+        games = GameModel.get_rounds_games(round_id=current_round.get_id())
         if games:
             # sort the games by id and retrieve games details
             sorted_games = sorted(games, key= lambda g: "game_id")

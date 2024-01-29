@@ -86,4 +86,4 @@ class RoundModel:
             for f in files
         ]
         t_rounds = filter(lambda r: r.tournament_id == tournament_id.split('.')[0], rounds)
-        return list(t_rounds)
+        return sorted(list(t_rounds), key= lambda r: r.name)
