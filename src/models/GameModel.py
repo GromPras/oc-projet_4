@@ -26,11 +26,13 @@ class GameModel:
         self.game_id = game_id
 
     def __repr__(self) -> str:
+        """Custom representation of the object"""
         g = self.game_infos()
         return f"""{g["player_1"].fullname()} (score: {g["player_1_score"]}) \
 contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
 
-    def __dict__(self) -> Dict:
+    def to_dict(self) -> Dict:
+        """Returns a dictionnary to save in the db"""
         g = self.game_infos()
         return {
             "player_1": g["player_1"].fullname(),
@@ -40,7 +42,7 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
         }
 
     def save(self) -> None:
-        """Saves the Game in the round's games list"""
+        """Saves the Game in the round's games list in the db"""
         t_round = f"{self.round_id}.json"
         games = self.get_rounds_games(t_round)
         if games:
@@ -61,7 +63,7 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
             )
 
     def update(self) -> None:
-        """Saves the Game in the round's games list"""
+        """Update the Game in the round's games list"""
         t_round = f"{self.round_id}.json"
         games = self.get_rounds_games(t_round)
         if games:
@@ -83,6 +85,7 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
             )
 
     def game_infos(self) -> Dict[str, Any]:
+        """Loads the players informations based on their ids"""
         player_1 = PlayerModel.load_by_id(self.player_1_id)
         player_2 = PlayerModel.load_by_id(self.player_2_id)
         if player_1 and player_2:
@@ -95,6 +98,7 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
             return game
 
     def set_player_score(self, player: str, score: float) -> Self:
+        """Setter for the player's score"""
         if player == self.player_1_id:
             self.player_1_score = score
         elif player == self.player_2_id:
@@ -103,6 +107,7 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
 
     @classmethod
     def get_rounds_games(cls, round_id: str):
+        """Retrieves the given round's games"""
         games_data = []
         if not os.path.exists(f"data/games/{round_id}"):
             return
@@ -119,6 +124,7 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
 
     @classmethod
     def remove(cls, round_id: str) -> None:
+        """Removes the round's games from the db"""
         try:
             os.remove(f"data/games/{round_id}")
         except OSError:

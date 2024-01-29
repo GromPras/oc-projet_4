@@ -2,7 +2,6 @@ from typing import Any, Dict
 from models.TournamentModel import TournamentModel
 from utils.functions import clear_screen
 from utils import validation
-from views.shared.loading_screen import loading_screen
 
 
 class TournamentViews:
@@ -63,3 +62,27 @@ Se joue en {tournament.number_of_rounds} tours. Tour actuel : {tournament.curren
         if tournament.description != "":
             print(tournament.description)
         print("_"*80)
+
+    def archive(self, archived_tournament: Dict) -> None:
+        print(f"""
+{archived_tournament["name"]}
+[{archived_tournament["location"]}] Du {archived_tournament["starts"]} au {archived_tournament["ends"]}
+S'est joué en {archived_tournament["number_of_rounds"]} tours
+""")
+        if archived_tournament["description"] != "":
+            print(archived_tournament["description"])
+        print("_"*80)
+        print("Classement : ")
+        for p in archived_tournament["players"]:
+            print(f"""
+{p["player"]["first_name"]} {p["player"]["last_name"]} #{p["player"]["national_chess_id"]} - {p["player_score"]} points""")
+        print("_"*80)
+        print("Matchs : ")
+        for index, r in enumerate(sorted(archived_tournament["rounds"], key= lambda r: r["name"]), 1):
+            print(f"""{r["name"]} Début: {r["started_on"].split('.')[0]} - Fin: {r["ended_on"].split('.')[0]}""")
+            print("-"*40)
+            for g in r["games"]:
+                print(f"""{g["player_1"]} (score: {g["player_1_score"]}) \
+contre {g["player_2"]} (score: {g["player_2_score"]})""")
+            if index < len(archived_tournament["rounds"]):
+                print("-"*40)

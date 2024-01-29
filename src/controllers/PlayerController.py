@@ -51,6 +51,7 @@ class PlayerController:
             )
 
     def add_player_menu(self) -> PlayerModel:
+        """Set the options to add a player"""
         options = {
             "1": {
                 "name": "Enregistrer un nouveau joueur",
@@ -78,6 +79,7 @@ class PlayerController:
             return options[user_choice]["controller"]()
 
     def register_player(self) -> PlayerModel:
+        """Register a new player in the db"""
         payload = self.views.player_form()
         new_player = PlayerModel(**payload)
         try:
@@ -87,6 +89,7 @@ class PlayerController:
             alert_message(message=str(e), type="Error")
 
     def load_player(self) -> PlayerModel:
+        """Load a player from the db"""
         saved_players = PlayerModel.get_all()
         if saved_players:
             player_list = {

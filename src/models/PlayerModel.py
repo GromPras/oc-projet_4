@@ -20,10 +20,12 @@ class PlayerModel:
         self.national_chess_id = national_chess_id
 
     def __repr__(self) -> str:
+        """Custom representation of the object"""
         return f"{self.national_chess_id} - \
 {self.fullname()} - né(e) le : {self.birth_date}"
 
     def fullname(self) -> str:
+        """Returns the player's first and last names"""
         return f"{self.first_name} {self.last_name}"
 
     def save(self) -> PlayerModel:
@@ -49,20 +51,21 @@ class PlayerModel:
             )
 
     def save_in_tournament(self, tournament_id: str):
+        """Saves the player and score in a joined table between players and tournament"""
         full_path = f'data/tournament_players/{tournament_id}'
         new_tournament_player = {
             "player_id": self.national_chess_id,
             "player_score": 0,
         }
-        tournament_players = self.get_tournament_players(
-            tournament_id=tournament_id, raw_data=True)
-        if tournament_players:
-            if new_tournament_player in tournament_players:
-                return
-        else:
-            tournament_players = []
-        tournament_players.append(new_tournament_player)
         try:
+            tournament_players = self.get_tournament_players(
+                tournament_id=tournament_id, raw_data=True)
+            if tournament_players:
+                if new_tournament_player in tournament_players:
+                    return
+            else:
+                tournament_players = []
+            tournament_players.append(new_tournament_player)
             with open(full_path, "w", encoding="UTF-8") as json_file:
                 json.dump(tournament_players, json_file)
         except OSError:
@@ -71,6 +74,7 @@ class PlayerModel:
             )
     
     def update_score(self, tournament_id: str, value: float) -> None:
+        """Updates the player score"""
         t_players = self.get_tournament_players(tournament_id=tournament_id, raw_data=True)
         for p in t_players:
             if p["player_id"] == self.national_chess_id:
@@ -115,10 +119,11 @@ class PlayerModel:
 
     @classmethod
     def get_tournament_players(cls, tournament_id: str, raw_data=False):
+        """Returns the list of a given tournament's players as strings or objects"""
         data = []
         tournament_players = []
         try:
-            with open(f"data/tournament_players/{tournament_id}") as json_file:
+            with open(f"data/tournament_players/{tournament_id}", "r") as json_file:
                 data = json.load(json_file)
 
             if raw_data:
@@ -137,12 +142,11 @@ class PlayerModel:
             return tournament_players
 
         except OSError:
-            raise LoadError(
-                message="[ERREUR]: le fichier joueurs n'a pas pu être chargé"
-            )
+            return None
 
     @classmethod
     def remove_tournament_players(cls, tournament_id: str) -> None:
+        """Removes the joined table containing the tournament's players"""
         try:
             os.remove(f"data/tournament_players/{tournament_id}")
         except OSError:

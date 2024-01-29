@@ -16,11 +16,9 @@ Bienvenue dans ChessCenter, que voulez-vous faire ?
 
 
 class ApplicationController:
-    def __init__(self) -> None:
-        pass
-
     def index(self) -> None:
-        """Home screen for the application"""
+        """Home controller for the application
+        Gets the user input from a selction of options"""
         tournament_controller = TournamentController()
         player_controller = PlayerController()
         main_menu = {

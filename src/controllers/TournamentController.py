@@ -82,6 +82,12 @@ class TournamentController():
         """Increment the tournament current round
         and add a new round to the rounds list"""
         tournament = TournamentModel.load_by_id(tournament_id)
+        t_players = PlayerModel.get_tournament_players(tournament_id=tournament.get_id())
+        if not t_players:
+            return
+        elif len(t_players) < tournament.number_of_rounds * 2:
+            alert_message(message="Pas assez de joueurs pour commencer", type="Error")
+            return
         tournament.current_round += 1
         RoundController().new(
             tournament_id=tournament.get_id(),
@@ -113,7 +119,7 @@ class TournamentController():
         for r in t_rounds_dict:
             games = GameModel.get_rounds_games(round_id=f"{r['round_id']}.json")
             if games:
-                r["games"] = [g.__dict__() for g in games]
+                r["games"] = [g.to_dict() for g in games]
         t_dict = tournament.__dict__
         t_dict["players"] = sorted(t_players_dict, key= lambda p: p["player_score"], reverse=True)
         t_dict["rounds"] = t_rounds_dict
@@ -134,6 +140,17 @@ class TournamentController():
 
     def archives(self) -> None:
         tournaments = TournamentModel.get_archives()
+        load_menu = {
+            str(index): tournament
+            for index, tournament in enumerate(tournaments, 1)
+        }
+        load_menu["q"] = "Annuler"
+        user_choice = loading_screen(
+            data=load_menu, title="Tounois archivés :", raw_input=True
+        )
+        if user_choice:
+            tournament = TournamentModel.load_archive_by_name(tournaments[int(user_choice) - 1])
+            self.views.archive(tournament)
 
     def load_tournament_menu(
         self, current_round: int, tournament_id: str, max_rounds: int, current_round_id: Optional[str] = None

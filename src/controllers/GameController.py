@@ -7,10 +7,16 @@ from utils.errors import SaveError
 
 class GameController:
     def set_game_result(self, round_id: str, tournament_id: str) -> None:
+        """Function to write the result of a game
+        Takes the tournament's and round's ids to identify the round and update dependencies"""
+
         games = GameModel.get_rounds_games(round_id=round_id)
         if games:
+            # sort the games by id and retrieve games details
             sorted_games = sorted(games, key= lambda g: "game_id")
             games = [g.game_infos() for g in sorted_games]
+            
+            # load the views and the games for the user to choose from
             views = GameViews()
             games_menu = {
                 str(index): game.__repr__()
@@ -20,11 +26,14 @@ class GameController:
             user_choice = loading_screen(
                 data=games_menu, title="Choisir le match :", raw_input=True
             )
+            # get user's choice and test it
+            # then prompt the user for the result of the game
             if user_choice:
                 if user_choice == "q":
                     return
                 game = sorted_games[int(user_choice) - 1]
                 game_winner = views.game_winner(game=game.game_infos())
+                # update data if the input is valid
                 if isinstance(game_winner, str):
                     if game_winner == "none":
                         player_1 = PlayerModel.load_by_id(id=game.player_1_id)
@@ -47,3 +56,4 @@ class GameController:
                             print(e)
                         winner.update_score(tournament_id=tournament_id, value=1)
                         return
+        return

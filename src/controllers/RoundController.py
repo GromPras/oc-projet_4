@@ -11,10 +11,13 @@ from views.shared.alert_message import alert_message
 
 class RoundController:
     def new(self, tournament_id: str, round_number: int) -> None:
+        """Creates a new round for the given tournament and round number"""
+        # loads tournament and existing rounds and players
         tournament = TournamentModel.load_by_id(id=tournament_id)
         t_rounds = RoundModel.get_tournament_rounds(tournament_id=tournament_id)
         players = PlayerModel.get_tournament_players(
             tournament_id=tournament.get_id(), raw_data=True)
+        # prepare the next round with a name and sorting the players
         next_round = int(round_number)
         sorted_players = self.sort_players_for_next_round(players, next_round)
         new_round = RoundModel(
@@ -22,6 +25,7 @@ class RoundController:
             name=f"Round {next_round}"
         )
         try:
+            # generate games and save them
             round_games = self.generate_pairs(
                 round_id=new_round.get_id(),
                 round_number=next_round,
@@ -43,6 +47,7 @@ class RoundController:
         players: List[Dict],
         t_rounds: Optional[List[RoundModel]] = None
     ) -> List[GameModel]:
+        """Function to generate pairs based on round number and previous games if needed"""
         pairs = []
         if round_number == 1:
             for i in range(0, len(players), 2):
@@ -55,6 +60,7 @@ class RoundController:
                 ))
             return pairs
         else:
+            # check for previous match to avoid players facing again
             for _ in range(number_of_pairs):
                 currently_paired = []
                 for g in pairs:
@@ -87,6 +93,7 @@ class RoundController:
             return pairs
 
     def sort_players_for_next_round(self, players, round_number) -> List[Dict]:
+        """Sort players based on round number"""
         if round_number == 1:
             shuffle(players)
             return players
@@ -96,6 +103,7 @@ class RoundController:
             return players
 
     def show_rounds(self, tournament_id: str) -> None:
+        """Display the given tournament's rounds"""
         views = RoundViews()
         tournament = TournamentModel.load_by_id(id=tournament_id)
         t_rounds = RoundModel.get_tournament_rounds(tournament_id=tournament.get_id())
@@ -110,6 +118,7 @@ class RoundController:
         input("Appuyez sur [Entrée] pour continuer")
     
     def end_round(self, tournament_id: str, round_id: str) -> None:
+        """End the round and save related data"""
         current_round = RoundModel.load_by_id(round_id=round_id)
         tournament = TournamentModel.load_by_id(id=tournament_id)
         tournament.add_round()
@@ -119,6 +128,7 @@ class RoundController:
         self.new(tournament_id=tournament.get_id(), round_number=tournament.current_round)
 
     def get_previous_pairs(self, t_rounds: List[RoundModel]) -> List[List[str]]:
+        """Return the list of previous games"""
         pairs = []
         for r in t_rounds:
             previous_games = GameModel.get_rounds_games(round_id=r.get_id())
@@ -128,6 +138,7 @@ class RoundController:
         return pairs
 
     def find_new_opponent(self, player_1_id: str, previous_pairs: List[List[str]], possible_opponents: List[str]) -> str:
+        """Find an opponent based on previous and current games"""
         new_opponent = None
         for o in possible_opponents:
             potential_pair = [player_1_id, o["player_id"]]
