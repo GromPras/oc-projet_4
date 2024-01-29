@@ -15,7 +15,6 @@ class GameController:
             # sort the games by id and retrieve games details
             sorted_games = sorted(games, key= lambda g: "game_id")
             games = [g.game_infos() for g in sorted_games]
-            
             # load the views and the games for the user to choose from
             views = GameViews()
             games_menu = {

@@ -14,7 +14,8 @@ class PlayerController:
     def index(self) -> None:
         """Show every player saved in the db"""
         players = PlayerModel.get_all()
-        self.views.index(players=players)
+        sorted_players = sorted(players, key= lambda p: p.last_name)
+        self.views.index(players=sorted_players)
         return
 
     def show_tournament_players(self, tournament_id: str) -> None:

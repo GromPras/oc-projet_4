@@ -61,6 +61,10 @@ class RoundModel:
         except OSError:
             print(f"Error deleting {self.round_id} round file")
 
+    def set_round_end(self) -> RoundModel:
+        self.ended_on = datetime.now()
+        return self
+
     @classmethod
     def load_by_id(cls, round_id: str) -> RoundModel:
         """Returns a round object from an id"""
