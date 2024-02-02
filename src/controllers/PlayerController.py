@@ -13,13 +13,18 @@ class PlayerController:
 
     def index(self) -> None:
         """Show every player saved in the db"""
-        players = PlayerModel.get_all()
-        if players:
-            self.views.index(players=players)
-            input("Appuyez sur [Entrée] pour continuer.")
+        try:
+            players = PlayerModel.get_all()
+            if players:
+                self.views.index(players=players)
+                input("Appuyez sur [Entrée] pour continuer.")
+        except LoadError as e:
+            alert_message(message=e, type="Error")
         return
 
-    def show_tournament_players(self, tournament_id: str, option: str = "leaderboard") -> None:
+    def show_tournament_players(
+        self, tournament_id: str, option: str = "leaderboard"
+    ) -> None:
         """Show players from a specific tournament"""
         tournament = TournamentModel.load_by_id(tournament_id)
         try:
@@ -28,19 +33,24 @@ class PlayerController:
             )
             if len(tournament_players) <= 0:
                 alert_message(
-                    message="Aucun joueur n'est inscrit au tournoi", type="Info")
+                    message="Aucun joueur n'est inscrit au tournoi",
+                    type="Info",
+                )
             else:
                 TournamentViews().show(tournament=tournament)
                 if option == "leaderboard":
                     self.views.leaderboard(players=tournament_players)
                 else:
-                    self.views.index(players=[i["player"] for i in tournament_players])
+                    self.views.index(
+                        players=[i["player"] for i in tournament_players]
+                    )
 
                 input("Appuyez sur [Entrée] pour continuer.")
         except LoadError:
             alert_message(
                 message="Aucun fichier de joueurs n'a été trouvé,\
-si vous venez de créer le tournoi essayez d'ajouter des joueurs.")
+si vous venez de créer le tournoi essayez d'ajouter des joueurs."
+            )
 
     def add_player_to_tournament(self, tournament_id: str) -> None:
         """Adds a player to a given tournament"""
@@ -51,10 +61,7 @@ si vous venez de créer le tournoi essayez d'ajouter des joueurs.")
             new_player.save_in_tournament(tournament_id=tournament_id)
             input("Appuyez sur [Entrée] pour continuer.")
         except SaveError as e:
-            alert_message(
-                message=str(e),
-                type="Error"
-            )
+            alert_message(message=str(e), type="Error")
 
     def add_player_menu(self) -> PlayerModel:
         """Set the options to add a player"""
@@ -71,8 +78,8 @@ si vous venez de créer le tournoi essayez d'ajouter des joueurs.")
                 "name": "Annuler",
                 "controller": lambda: alert_message(
                     message="Aucun joueur n'a été ajouté", type="Info"
-                )
-            }
+                ),
+            },
         }
         user_choice = loading_screen(
             data={key: option["name"] for key, option in options.items()},
@@ -109,9 +116,8 @@ si vous venez de créer le tournoi essayez d'ajouter des joueurs.")
             )
             if selection and selection != "q":
                 player = PlayerModel.load_by_id(
-                    saved_players[int(selection) - 1].national_chess_id)
+                    saved_players[int(selection) - 1].national_chess_id
+                )
                 return player
             else:
-                alert_message(
-                    message="Aucun joueur n'a été ajouté"
-                )
+                alert_message(message="Aucun joueur n'a été ajouté")

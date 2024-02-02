@@ -1,3 +1,4 @@
+import os
 from controllers.PlayerController import PlayerController
 from controllers.TournamentController import TournamentController
 from views.shared.alert_message import alert_message
@@ -16,6 +17,9 @@ Bienvenue dans ChessCenter, que voulez-vous faire ?
 
 
 class ApplicationController:
+    def __init__(self) -> None:
+        self.init_app()
+
     def index(self) -> None:
         """Home controller for the application
         Gets the user input from a selction of options"""
@@ -24,31 +28,30 @@ class ApplicationController:
         main_menu = {
             "1": {
                 "name": "Afficher tous les joueurs",
-                "controller": lambda: player_controller.index()
+                "controller": lambda: player_controller.index(),
             },
             "2": {
                 "name": "Créer un tournoi",
-                "controller": lambda: tournament_controller.new()
+                "controller": lambda: tournament_controller.new(),
             },
             "3": {
                 "name": "Charger un tournoi",
-                "controller": lambda: tournament_controller.load()
+                "controller": lambda: tournament_controller.load(),
             },
             "4": {
                 "name": "Afficher un tournoi archivé",
-                "controller": lambda: tournament_controller.archives()
+                "controller": lambda: tournament_controller.archives(),
             },
-            "q": {
-                "name": "Quitter",
-                "controller": lambda: self.exit_app()
-            }
+            "q": {"name": "Quitter", "controller": lambda: self.exit_app()},
         }
         while True:
             user_choice = loading_screen(
-                data={key: option["name"] for key, option in main_menu.items()},
+                data={
+                    key: option["name"] for key, option in main_menu.items()
+                },
                 title=app_logo,
                 raw_input=True,
-                clear_previous_screen=True
+                clear_previous_screen=True,
             )
             if user_choice == "q":
                 self.exit_app()
@@ -59,9 +62,24 @@ class ApplicationController:
         """Exits the application, displaying a nice message."""
         alert_message(
             message="Merci d'avoir utilisé cette application, à bientôt!",
-            type="Info"
+            type="Info",
         )
         return False
 
     def run(self) -> None:
         self.index()
+
+    def init_app(self) -> None:
+        dirs = [
+            "archives",
+            "games",
+            "players",
+            "rounds",
+            "tournament_players",
+            "tournaments",
+        ]
+        if not os.path.exists("data/"):
+            os.mkdir("data")
+        for d in dirs:
+            if not os.path.exists("data/" + d):
+                os.mkdir(f"data/{d}")

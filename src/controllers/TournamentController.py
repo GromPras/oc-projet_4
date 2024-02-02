@@ -10,7 +10,7 @@ from models.TournamentModel import TournamentModel
 from views.shared.alert_message import alert_message
 from views.shared.loading_screen import loading_screen
 from views.tournament.TournamentViews import TournamentViews
-from utils.errors import SaveError
+from utils.errors import SaveError, LoadError
 
 
 class TournamentController:
@@ -32,19 +32,22 @@ class TournamentController:
     def load(self) -> None:
         """Calls the form to load a saved tournament
         then calls the show() function"""
-        saved_tournaments = TournamentModel.get_all()
-        load_menu = {
-            str(index): tournament.__repr__()
-            for index, tournament in enumerate(saved_tournaments, 1)
-        }
-        load_menu["q"] = "Annuler"
-        user_choice = loading_screen(
-            data=load_menu, title="Tounois sauvegardés :", raw_input=True
-        )
-        if user_choice and user_choice != "q":
-            self.show(saved_tournaments[int(user_choice) - 1].get_id())
-        else:
-            return
+        try:
+            saved_tournaments = TournamentModel.get_all()
+            load_menu = {
+                str(index): tournament.__repr__()
+                for index, tournament in enumerate(saved_tournaments, 1)
+            }
+            load_menu["q"] = "Annuler"
+            user_choice = loading_screen(
+                data=load_menu, title="Tounois sauvegardés :", raw_input=True
+            )
+            if user_choice and user_choice != "q":
+                self.show(saved_tournaments[int(user_choice) - 1].get_id())
+            else:
+                return
+        except LoadError as e:
+            alert_message(message=str(e), type="Error")
 
     def show(self, tournament_id: str) -> None:
         tournament = TournamentModel.load_by_id(tournament_id)
@@ -174,11 +177,13 @@ class TournamentController:
         user_choice = loading_screen(
             data=load_menu, title="Tounois archivés :", raw_input=True
         )
-        if user_choice:
+        if user_choice and user_choice != "q":
             tournament = TournamentModel.load_archive_by_name(
                 tournaments[int(user_choice) - 1]
             )
             self.views.archive(tournament)
+        else:
+            return
 
     def load_tournament_menu(
         self,
