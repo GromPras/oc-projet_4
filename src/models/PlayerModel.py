@@ -46,7 +46,7 @@ class PlayerModel:
                 json.dump([player.__dict__ for player in players], json_file)
 
             return self
-        except OSError as e:
+        except OSError:
             raise SaveError(
                 message="[ERREUR]: le fichier n'a pas pu être sauvegardé"
             )
@@ -101,7 +101,7 @@ class PlayerModel:
                 players_data = json.load(json_file)
         except FileNotFoundError:
             pass
-        except OSError as e:
+        except OSError:
             raise LoadError(
                 message="[ERREUR]: le fichier joueurs n'a pas pu être chargé"
             )
