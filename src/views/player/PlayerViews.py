@@ -10,8 +10,8 @@ class PlayerViews:
         """Displays all the players"""
         clear_screen()
         print("Liste des joueurs")
-        print("_"*80)
-        sorted_players = sorted(players, key= lambda p: p.last_name)
+        print("_" * 80)
+        sorted_players = sorted(players, key=lambda p: p.last_name)
         [self.show(player) for player in sorted_players]
 
     def show(self, player: PlayerModel) -> None:
@@ -20,13 +20,16 @@ class PlayerViews:
 
     def leaderboard(self, players: List[Dict]) -> None:
         sort_by_score = sorted(
-            players, key=lambda s: s["player_score"], reverse=True)
+            players, key=lambda s: s["player_score"], reverse=True
+        )
         print("Score|     NID| Nom")
         for contender in sort_by_score:
-            print(f"""{spacer(length=5-len(str(contender['player_score'])))}\
+            print(
+                f"""{spacer(length=5-len(str(contender['player_score'])))}\
 {contender['player_score']}| \
 {contender['player'].national_chess_id}| \
-{contender["player"].fullname()}""")
+{contender["player"].fullname()}"""
+            )
 
     def player_form(self) -> Dict[str, str]:
         clear_screen()

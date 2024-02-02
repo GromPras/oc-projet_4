@@ -1,7 +1,6 @@
 from models.GameModel import GameModel
 from models.PlayerModel import PlayerModel
 from models.RoundModel import RoundModel
-from models.TournamentModel import TournamentModel
 from views.game.GameViews import GameViews
 from views.shared.loading_screen import loading_screen
 from utils.errors import SaveError
@@ -15,7 +14,7 @@ class GameController:
         games = GameModel.get_rounds_games(round_id=current_round.get_id())
         if games:
             # sort the games by id and retrieve games details
-            sorted_games = sorted(games, key= lambda g: "game_id")
+            sorted_games = sorted(games, key=lambda g: "game_id")
             games = [g.game_infos() for g in sorted_games]
             # load the views and the games for the user to choose from
             views = GameViews()

@@ -52,14 +52,15 @@ class PlayerModel:
 
     def save_in_tournament(self, tournament_id: str):
         """Saves the player and score in a joined table between players and tournament"""
-        full_path = f'data/tournament_players/{tournament_id}'
+        full_path = f"data/tournament_players/{tournament_id}"
         new_tournament_player = {
             "player_id": self.national_chess_id,
             "player_score": 0,
         }
         try:
             tournament_players = self.get_tournament_players(
-                tournament_id=tournament_id, raw_data=True)
+                tournament_id=tournament_id, raw_data=True
+            )
             if tournament_players:
                 if new_tournament_player in tournament_players:
                     return
@@ -72,15 +73,17 @@ class PlayerModel:
             raise SaveError(
                 message="[ERREUR]: le fichier n'a pas pu être sauvegardé"
             )
-    
+
     def update_score(self, tournament_id: str, value: float) -> None:
         """Updates the player score"""
-        t_players = self.get_tournament_players(tournament_id=tournament_id, raw_data=True)
+        t_players = self.get_tournament_players(
+            tournament_id=tournament_id, raw_data=True
+        )
         for p in t_players:
             if p["player_id"] == self.national_chess_id:
                 p["player_score"] += value
         try:
-            full_path = f'data/tournament_players/{tournament_id}'
+            full_path = f"data/tournament_players/{tournament_id}"
             with open(full_path, "w", encoding="UTF-8") as json_file:
                 json.dump(t_players, json_file)
         except OSError:
@@ -111,9 +114,7 @@ class PlayerModel:
         players = cls.get_all()
         if players and id:
             player_data = [
-                player
-                for player in players
-                if player.national_chess_id == id
+                player for player in players if player.national_chess_id == id
             ]
             return player_data[0] if len(player_data) > 0 else None
 
@@ -123,7 +124,9 @@ class PlayerModel:
         data = []
         tournament_players = []
         try:
-            with open(f"data/tournament_players/{tournament_id}", "r") as json_file:
+            with open(
+                f"data/tournament_players/{tournament_id}", "r"
+            ) as json_file:
                 data = json.load(json_file)
 
             if raw_data:
@@ -135,7 +138,7 @@ class PlayerModel:
                         "player": PlayerModel.load_by_id(
                             line_item["player_id"]
                         ),
-                        "player_score": line_item["player_score"]
+                        "player_score": line_item["player_score"],
                     }
                 )
 

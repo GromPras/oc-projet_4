@@ -2,10 +2,7 @@ from __future__ import annotations
 import os
 import json
 from datetime import datetime
-from random import shuffle
 from typing import List, Optional
-from models.GameModel import GameModel
-from models.PlayerModel import PlayerModel
 from utils.functions import generate_id
 from utils.errors import SaveError
 
@@ -81,9 +78,8 @@ class RoundModel:
     def get_tournament_rounds(cls, tournament_id: str) -> List[RoundModel]:
         """Returns the given tournament's rounds"""
         files = os.listdir("data/rounds")
-        rounds = [
-            cls.load_by_id(round_id=f)
-            for f in files
-        ]
-        t_rounds = filter(lambda r: r.tournament_id == tournament_id.split('.')[0], rounds)
-        return sorted(list(t_rounds), key= lambda r: r.name)
+        rounds = [cls.load_by_id(round_id=f) for f in files]
+        t_rounds = filter(
+            lambda r: r.tournament_id == tournament_id.split(".")[0], rounds
+        )
+        return sorted(list(t_rounds), key=lambda r: r.name)

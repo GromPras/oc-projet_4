@@ -71,8 +71,9 @@ Joué en {self.number_of_rounds} tours - Tour actuel: {self.current_round}"
         """Returns all tournaments files in data/tournaments/ folder"""
         tournaments = os.listdir("data/tournaments")
         tournaments = sorted(tournaments, reverse=True)
-        tournaments = [cls.load_by_id(tournament)
-                       for tournament in tournaments]
+        tournaments = [
+            cls.load_by_id(tournament) for tournament in tournaments
+        ]
         return tournaments
 
     @classmethod

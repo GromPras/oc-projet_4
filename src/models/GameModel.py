@@ -4,6 +4,7 @@ import json
 from typing import Optional, Dict, Any, Self
 from models.PlayerModel import PlayerModel
 from utils.errors import LoadError, SaveError
+from utils.functions import score_to_letter
 
 
 class GameModel:
@@ -16,7 +17,7 @@ class GameModel:
         player_2_id: str,
         player_1_score: float = 0.0,
         player_2_score: float = 0.0,
-        game_id: Optional[str] = None
+        game_id: Optional[str] = None,
     ) -> None:
         self.round_id = round_id.split(".")[0]
         self.player_1_id = player_1_id
@@ -55,7 +56,9 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
 
         games.append(self)
         try:
-            with open(f"data/games/{t_round}", "w", encoding="UTF-8") as json_file:
+            with open(
+                f"data/games/{t_round}", "w", encoding="UTF-8"
+            ) as json_file:
                 json.dump([game.__dict__ for game in games], json_file)
         except OSError:
             raise SaveError(
@@ -77,7 +80,9 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
             )
 
         try:
-            with open(f"data/games/{t_round}", "w", encoding="UTF-8") as json_file:
+            with open(
+                f"data/games/{t_round}", "w", encoding="UTF-8"
+            ) as json_file:
                 json.dump([game.__dict__ for game in games], json_file)
         except OSError:
             raise SaveError(
@@ -93,9 +98,15 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
                 "player_1": player_1,
                 "player_1_score": self.player_1_score,
                 "player_2": player_2,
-                "player_2_score": self.player_2_score
+                "player_2_score": self.player_2_score,
             }
             return game
+
+    def round_infos(self) -> str:
+        g = self.game_infos()
+        return f"""\
+{g["player_1"].fullname()} (score: {score_to_letter(g["player_1_score"])}) \
+contre {g["player_2"].fullname()} (score: {score_to_letter(g["player_2_score"])})"""
 
     def set_player_score(self, player: str, score: float) -> Self:
         """Setter for the player's score"""
@@ -120,7 +131,8 @@ contre {g["player_2"].fullname()} (score: {g["player_2_score"]})"""
             return None
         except OSError:
             raise LoadError(
-                message="[ERREUR]: le fichier joueurs n'a pas pu être chargé")
+                message="[ERREUR]: le fichier joueurs n'a pas pu être chargé"
+            )
 
     @classmethod
     def remove(cls, round_id: str) -> None:

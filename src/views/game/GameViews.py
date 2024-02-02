@@ -3,8 +3,10 @@ from typing import Dict
 
 class GameViews:
     def game_winner(self, game: Dict) -> str:
-        print(f"""{game["player_1"].fullname()} contre {game["player_2"].fullname()}""")
-        print("_"*40)
+        print(
+            f"""{game["player_1"].fullname()} contre {game["player_2"].fullname()}"""
+        )
+        print("_" * 40)
         print(f"1: {game['player_1'].fullname()} gagne")
         print(f"2: {game['player_2'].fullname()} gagne")
         print("3: Egalité")

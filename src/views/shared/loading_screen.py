@@ -7,7 +7,7 @@ def loading_screen(
     data: Dict[str, str],
     title: str,
     raw_input=True,
-    clear_previous_screen=True
+    clear_previous_screen=True,
 ) -> str:
     """A function to print a list of item for the user to choose from
     Can return the raw input, a string or None

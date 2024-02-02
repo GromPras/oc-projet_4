@@ -39,7 +39,8 @@ class PlayerController:
                 input("Appuyez sur [Entrée] pour continuer.")
         except LoadError:
             alert_message(
-                message="Aucun fichier de joueurs n'a été trouvé, si vous venez de créer le tournoi essayez d'ajouter des joueurs.")
+                message="Aucun fichier de joueurs n'a été trouvé,\
+si vous venez de créer le tournoi essayez d'ajouter des joueurs.")
 
     def add_player_to_tournament(self, tournament_id: str) -> None:
         """Adds a player to a given tournament"""
