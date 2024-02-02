@@ -31,6 +31,10 @@ class PlayerController:
             tournament_players = PlayerModel.get_tournament_players(
                 tournament_id=tournament_id
             )
+            if not tournament_players:
+                return alert_message(
+                    message="Aucun joueur enregistré, ajoutez-en.", type="Info"
+                )
             if len(tournament_players) <= 0:
                 alert_message(
                     message="Aucun joueur n'est inscrit au tournoi",
@@ -121,3 +125,7 @@ si vous venez de créer le tournoi essayez d'ajouter des joueurs."
                 return player
             else:
                 alert_message(message="Aucun joueur n'a été ajouté")
+        else:
+            alert_message(
+                message="Aucun joueur enregistré, ajoutez-en.", type="Info"
+            )

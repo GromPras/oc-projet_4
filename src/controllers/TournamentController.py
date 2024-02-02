@@ -98,7 +98,9 @@ class TournamentController:
             tournament_id=tournament.get_id()
         )
         if not t_players:
-            return
+            return alert_message(
+                message="Aucun joueur inscri, ajoutez-en.", type="Info"
+            )
         elif len(t_players) < tournament.number_of_rounds * 2:
             alert_message(
                 message="Pas assez de joueurs pour commencer", type="Error"

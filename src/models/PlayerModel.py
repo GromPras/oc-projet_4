@@ -45,7 +45,7 @@ class PlayerModel:
                 json.dump([player.__dict__ for player in players], json_file)
 
             return self
-        except OSError:
+        except OSError as e:
             raise SaveError(
                 message="[ERREUR]: le fichier n'a pas pu être sauvegardé"
             )
@@ -94,18 +94,23 @@ class PlayerModel:
     @classmethod
     def get_all(cls):
         """Retrieve the players from a json file"""
-        players_data = []
+        players_data = None
         try:
             with open("data/players/players.json", "r") as json_file:
                 players_data = json.load(json_file)
-
-            if players_data:
-                players = [cls(**player) for player in players_data]
-                return players
-        except OSError:
+        except FileNotFoundError:
+            pass
+        except OSError as e:
             raise LoadError(
                 message="[ERREUR]: le fichier joueurs n'a pas pu être chargé"
             )
+        else:
+            if players_data:
+                players = [cls(**player) for player in players_data]
+                return players
+            else:
+                players_data = None
+        return players_data
 
     @classmethod
     def load_by_id(cls, id: str) -> PlayerModel | None:
