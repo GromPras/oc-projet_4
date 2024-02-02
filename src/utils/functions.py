@@ -33,3 +33,7 @@ def score_to_letter(score: float) -> str:
         return "V"
     else:
         return "N/C"
+
+
+def format_birth(birth_date: str) -> str:
+    return f"{birth_date[:2]}/{birth_date[2:4]}/{birth_date[4:]}"

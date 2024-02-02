@@ -79,9 +79,10 @@ class TournamentController:
                 clear_previous_screen=False,
             )
             tournament_menu[user_choice]["controller"]()
+            # Return to main menu if tournament is archived
             if (
                 tournament.current_round > tournament.number_of_rounds
-                and user_choice == "3"
+                and user_choice == "4"
             ):
                 break
             elif user_choice == "q" or user_choice == "Quitter":
@@ -239,7 +240,6 @@ class TournamentController:
                         "3": {
                             "name": "Inscrire les résultats d'un match",
                             "controller": lambda: GameController().set_game_result(
-                                round_id=current_round_id,
                                 tournament_id=tournament_id,
                             ),
                         },
@@ -247,7 +247,6 @@ class TournamentController:
                             "name": "Passer au tour suivant (tous les matchs du tour doivent être finis)",
                             "controller": lambda: RoundController().end_round(
                                 tournament_id=tournament_id,
-                                round_id=current_round_id,
                             ),
                         },
                     }
@@ -274,11 +273,18 @@ class TournamentController:
                 menu.update(
                     {
                         "3": {
+                            "name": "Afficher le classement",
+                            "controller": lambda: PlayerController().show_tournament_players(
+                                tournament_id=tournament_id,
+                                option="leaderboard",
+                            ),
+                        },
+                        "4": {
                             "name": "Archiver le tournoi",
                             "controller": lambda: self.archive_tournament(
                                 tournament_id=tournament_id
                             ),
-                        }
+                        },
                     }
                 )
 

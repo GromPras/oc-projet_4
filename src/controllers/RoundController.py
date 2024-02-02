@@ -127,10 +127,28 @@ class RoundController:
         views.show_rounds(rounds=t_rounds)
         input("Appuyez sur [Entrée] pour continuer")
 
-    def end_round(self, tournament_id: str, round_id: str) -> None:
+    def end_round(self, tournament_id: str) -> None:
         """End the round and save related data"""
-        current_round = RoundModel.load_by_id(round_id=round_id)
+        current_round = RoundModel.get_tournament_rounds(
+            tournament_id=tournament_id
+        )[-1]
+        rounds_games = GameModel.get_rounds_games(
+            round_id=current_round.get_id()
+        )
+        if not rounds_games:
+            return alert_message(
+                message="Tous les matchs doivent être terminés.", type="Info"
+            )
+        for g in rounds_games:
+            if g.player_1_score == 0 and g.player_2_score == 0:
+                return alert_message(
+                    message="Tous les matchs doivent être terminés.",
+                    type="Info",
+                )
+
         tournament = TournamentModel.load_by_id(id=tournament_id)
+        if tournament.number_of_rounds == tournament.current_round:
+            return alert_message(message="Dernier round joué.", type="Info")
         tournament.add_round()
         tournament.save()
         current_round.set_round_end()

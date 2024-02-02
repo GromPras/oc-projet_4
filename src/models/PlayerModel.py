@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 import os
 from utils.errors import SaveError, LoadError
+from utils.functions import format_birth
 
 
 class PlayerModel:
@@ -22,7 +23,7 @@ class PlayerModel:
     def __repr__(self) -> str:
         """Custom representation of the object"""
         return f"{self.national_chess_id} - \
-{self.fullname()} - né(e) le : {self.birth_date}"
+{self.fullname()} - né(e) le : {format_birth(self.birth_date)}"
 
     def fullname(self) -> str:
         """Returns the player's first and last names"""

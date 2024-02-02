@@ -11,7 +11,7 @@ class RoundViews:
         clear_screen()
         print("Légende: V = Victoire, D = Défaite, E = Egalité")
         print(
-            "Si les deux joueurs affichent (D)\
+            "Si les deux joueurs affichent (D) \
 cela veut dire que le match n'est pas encore fini."
         )
         print()
