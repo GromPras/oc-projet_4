@@ -11,7 +11,8 @@ class PlayerViews:
         clear_screen()
         print("Liste des joueurs")
         print("_"*80)
-        [self.show(player) for player in players]
+        sorted_players = sorted(players, key= lambda p: p.last_name)
+        [self.show(player) for player in sorted_players]
 
     def show(self, player: PlayerModel) -> None:
         """Displays a player"""

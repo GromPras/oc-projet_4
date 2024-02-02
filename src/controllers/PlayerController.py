@@ -14,11 +14,12 @@ class PlayerController:
     def index(self) -> None:
         """Show every player saved in the db"""
         players = PlayerModel.get_all()
-        sorted_players = sorted(players, key= lambda p: p.last_name)
-        self.views.index(players=sorted_players)
+        if players:
+            self.views.index(players=players)
+            input("Appuyez sur [Entrée] pour continuer.")
         return
 
-    def show_tournament_players(self, tournament_id: str) -> None:
+    def show_tournament_players(self, tournament_id: str, option: str = "leaderboard") -> None:
         """Show players from a specific tournament"""
         tournament = TournamentModel.load_by_id(tournament_id)
         try:
@@ -30,7 +31,10 @@ class PlayerController:
                     message="Aucun joueur n'est inscrit au tournoi", type="Info")
             else:
                 TournamentViews().show(tournament=tournament)
-                self.views.leaderboard(players=tournament_players)
+                if option == "leaderboard":
+                    self.views.leaderboard(players=tournament_players)
+                else:
+                    self.views.index(players=[i["player"] for i in tournament_players])
 
                 input("Appuyez sur [Entrée] pour continuer.")
         except LoadError:

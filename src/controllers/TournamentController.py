@@ -164,7 +164,8 @@ class TournamentController():
                 "1": {
                     "name": "Afficher les joueurs du tournoi",
                     "controller": lambda: PlayerController().show_tournament_players(
-                        tournament_id=tournament_id
+                        tournament_id=tournament_id,
+                        option="player_list"
                     ),
                 },
                 "2": {
@@ -186,7 +187,8 @@ class TournamentController():
                 "1": {
                     "name": "Afficher les joueurs du tournoi",
                     "controller": lambda: PlayerController().show_tournament_players(
-                        tournament_id=tournament_id
+                        tournament_id=tournament_id,
+                        option="player_list"
                     ),
                 },
                 "2": {
