@@ -40,13 +40,13 @@ class PlayerViews:
                 "prompt": "Prénom : ",
                 "validation_func": lambda v: validation.field_length(
                     v, 2
-                ).capitalize(),
+                ).title(),
             },
             "last_name": {
                 "prompt": "Nom : ",
                 "validation_func": lambda v: validation.field_length(
                     v, 2
-                ).capitalize(),
+                ).title(),
             },
             "birth_date": {
                 "prompt": "Date de naissance (format: jjmmaaaa) : ",

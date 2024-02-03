@@ -17,7 +17,7 @@ class TournamentViews:
                 "prompt": "Lieu où se déroulera le tournoi : ",
                 "validation_func": lambda v: validation.field_length(
                     v, 2
-                ).capitalize(),
+                ).title(),
             },
             "starts": {
                 "prompt": "Date de début (format : jjmmaaaa) : ",
