@@ -20,7 +20,7 @@ def validate_input(prompt: str, validation_func: Any) -> Any:
     while True:
         try:
             value = input(prompt)
-            return validation_func(value)
+            return validation_func(value.strip())
         except ValueError as err:
             alert_message(message=str(err), type="Error")
 

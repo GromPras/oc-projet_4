@@ -9,11 +9,15 @@ class TournamentViews:
         field_requirements = {
             "name": {
                 "prompt": "Entrez le nom du tournoi : ",
-                "validation_func": lambda v: validation.field_length(v, 2),
+                "validation_func": lambda v: validation.field_length(
+                    v, 2
+                ).capitalize(),
             },
             "location": {
                 "prompt": "Lieu où se déroulera le tournoi : ",
-                "validation_func": lambda v: validation.field_length(v, 2),
+                "validation_func": lambda v: validation.field_length(
+                    v, 2
+                ).capitalize(),
             },
             "starts": {
                 "prompt": "Date de début (format : jjmmaaaa) : ",

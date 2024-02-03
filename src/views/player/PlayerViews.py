@@ -38,11 +38,15 @@ class PlayerViews:
         fields_requirements = {
             "first_name": {
                 "prompt": "Prénom : ",
-                "validation_func": lambda v: validation.field_length(v, 2),
+                "validation_func": lambda v: validation.field_length(
+                    v, 2
+                ).capitalize(),
             },
             "last_name": {
                 "prompt": "Nom : ",
-                "validation_func": lambda v: validation.field_length(v, 2),
+                "validation_func": lambda v: validation.field_length(
+                    v, 2
+                ).capitalize(),
             },
             "birth_date": {
                 "prompt": "Date de naissance (format: jjmmaaaa) : ",
