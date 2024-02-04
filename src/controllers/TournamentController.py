@@ -271,7 +271,6 @@ class TournamentController:
                         "4": {
                             "name": "Inscrire les résultats d'un match",
                             "controller": lambda: GameController().set_game_result(
-                                round_id=current_round_id,
                                 tournament_id=tournament_id,
                             ),
                         },
