@@ -238,12 +238,19 @@ class TournamentController:
                 menu.update(
                     {
                         "3": {
+                            "name": "Afficher le classement",
+                            "controller": lambda: PlayerController().show_tournament_players(
+                                tournament_id=tournament_id,
+                                option="leaderboard",
+                            ),
+                        },
+                        "4": {
                             "name": "Inscrire les résultats d'un match",
                             "controller": lambda: GameController().set_game_result(
                                 tournament_id=tournament_id,
                             ),
                         },
-                        "4": {
+                        "5": {
                             "name": "Passer au tour suivant (tous les matchs du tour doivent être finis)",
                             "controller": lambda: RoundController().end_round(
                                 tournament_id=tournament_id,
@@ -255,13 +262,20 @@ class TournamentController:
                 menu.update(
                     {
                         "3": {
+                            "name": "Afficher le classement",
+                            "controller": lambda: PlayerController().show_tournament_players(
+                                tournament_id=tournament_id,
+                                option="leaderboard",
+                            ),
+                        },
+                        "4": {
                             "name": "Inscrire les résultats d'un match",
                             "controller": lambda: GameController().set_game_result(
                                 round_id=current_round_id,
                                 tournament_id=tournament_id,
                             ),
                         },
-                        "4": {
+                        "5": {
                             "name": "Terminer le tournoi (tous les matchs du tour doivent être finis)",
                             "controller": lambda: self.end_tournament(
                                 tournament_id=tournament_id
