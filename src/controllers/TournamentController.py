@@ -89,7 +89,7 @@ class TournamentController:
                 alert_message(message="Retour au menu principal")
                 break
             else:
-                continue
+                self.show(tournament_id=tournament.get_id())
 
     def start_round(self, tournament_id: str) -> None:
         """Increment the tournament current round

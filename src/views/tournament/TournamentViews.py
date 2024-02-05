@@ -1,6 +1,6 @@
 from typing import Any, Dict
 from models.TournamentModel import TournamentModel
-from utils.functions import clear_screen
+from utils.functions import clear_screen, format_birth
 from utils import validation
 
 
@@ -52,12 +52,12 @@ class TournamentViews:
 
         return new_tournament
 
-    def show(self, tournament: TournamentModel) -> str:
+    def show(self, tournament: TournamentModel) -> None:
         clear_screen()
         print(
             f"""
 {tournament.name}
-[{tournament.location}] Du {tournament.starts} au {tournament.ends}
+[{tournament.location}] Du {format_birth(tournament.starts)} au {format_birth(tournament.ends)}
 Se joue en {tournament.number_of_rounds} tours. Tour actuel : {tournament.current_round}
 """
         )
