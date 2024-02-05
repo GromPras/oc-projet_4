@@ -18,8 +18,12 @@ class PlayerController:
             if players:
                 self.views.index(players=players)
                 input("Appuyez sur [Entrée] pour continuer.")
+            else:
+                alert_message(
+                    message="Aucun joueur enregistré, ajoutez-en", type="Info"
+                )
         except LoadError as e:
-            alert_message(message=e, type="Error")
+            alert_message(message=str(e), type="Error")
         return
 
     def show_tournament_players(
