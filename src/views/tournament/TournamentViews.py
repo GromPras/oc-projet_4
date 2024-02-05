@@ -28,7 +28,7 @@ class TournamentViews:
                 "validation_func": lambda v: validation.field_date(v),
             },
             "number_of_rounds": {
-                "prompt": "En combien de tous le tournoi se joue? (4 minimum) : ",
+                "prompt": "En combien de tours le tournoi se joue? (4 minimum) : ",
                 "validation_func": lambda v: validation.field_number(v),
             },
             "description": {
