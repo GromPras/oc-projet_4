@@ -24,6 +24,7 @@ class GameController:
             games_menu = {
                 str(index): game.__repr__()
                 for index, game in enumerate(sorted_games, 1)
+                if game.player_1_score == 0 and game.player_2_score == 0
             }
             games_menu["q"] = "Annuler"
             user_choice = loading_screen(
