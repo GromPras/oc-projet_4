@@ -148,7 +148,6 @@ class RoundController:
 
         tournament = TournamentModel.load_by_id(id=tournament_id)
         if tournament.number_of_rounds == tournament.current_round:
-            tournament.add_round()
             return alert_message(message="Dernier round joué.", type="Info")
         tournament.add_round()
         tournament.save()

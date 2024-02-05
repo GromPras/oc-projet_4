@@ -118,7 +118,7 @@ class TournamentController:
 
     def end_tournament(self, tournament_id: str) -> None:
         tournament = TournamentModel.load_by_id(tournament_id)
-        RoundController().end_round(tournament_id=tournament.get_id())
+        tournament.add_round()
         tournament.save()
         self.show(tournament_id=tournament.get_id())
         alert_message(message="Tournoi terminé")
